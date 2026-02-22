@@ -90,10 +90,19 @@
   font-weight: 600;
 }
 
-.content-note {
-  margin: 0 0 1rem;
-  font-size: 0.85rem;
-  color: #71717a;
+.area-block {
+  margin-bottom: 1.5rem;
+}
+
+.area-block:last-child {
+  margin-bottom: 0;
+}
+
+.area-name {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #a1a1aa;
 }
 
 .boss-list {
@@ -115,6 +124,12 @@
   border-radius: 6px;
 }
 
+.boss-name-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .boss-name {
   font-weight: 500;
 }
@@ -123,4 +138,16 @@
   font-size: 0.75rem;
   color: #71717a;
   font-family: ui-monospace, "SF Mono", Menlo, Monaco, "Cascadia Mono", monospace;
+}
+
+.boss-tag {
+  font-size: 0.7rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.boss-tag--lord {
+  background: #422006;
+  color: #fbbf24;
 }

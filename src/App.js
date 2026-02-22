@@ -1,67 +1,7 @@
 import './App.css';
+import { SCHEMA_DEFINITIONS } from './Constants/schema';
+import { DARK_SOULS_1_AREAS } from './Constants/areas';
 import { DARK_SOULS_1_BOSSES } from './Constants/bosses';
-
-const SCHEMAS = [
-  {
-    name: 'FogGateId',
-    kind: 'alias',
-    def: 'string',
-  },
-  {
-    name: 'AreaId',
-    kind: 'alias',
-    def: 'string',
-  },
-  {
-    name: 'FogGate',
-    kind: 'type',
-    def: `{
-  id: FogGateId;
-  name?: string;
-  /** Whether the player has opened / passed through this gate */
-  cleared: boolean;
-}`,
-  },
-  {
-    name: 'Area',
-    kind: 'type',
-    def: `{
-  id: AreaId;
-  name: string;
-  fogGates: FogGate[];
-}`,
-  },
-  {
-    name: 'Run',
-    kind: 'type',
-    def: `{
-  id: string;
-  createdAt: number;
-  areas: Area[];
-}`,
-  },
-  {
-    name: 'Boss',
-    kind: 'type',
-    def: `{
-  id: BossId;
-  name: string;
-  areaId?: AreaId;
-}`,
-  },
-  {
-    name: 'BossId',
-    kind: 'alias',
-    def: 'string',
-  },
-  {
-    name: 'RunState',
-    kind: 'type',
-    def: `{
-  run: Run | null;
-}`,
-  },
-];
 
 function SchemaBlock({ schema }) {
   return (
@@ -91,21 +31,32 @@ function App() {
           Dark Souls areas and fog gates. Areas contain FogGates; tracking which
           gates are cleared = run progress.
         </p>
-        {SCHEMAS.map((schema) => (
+        {SCHEMA_DEFINITIONS.map((schema) => (
           <SchemaBlock key={schema.name} schema={schema} />
         ))}
 
         <section className="content-section">
-          <h2 className="content-heading">Dark Souls 1 bosses</h2>
-          <p className="content-note">Area assignment coming soon.</p>
-          <ul className="boss-list">
-            {DARK_SOULS_1_BOSSES.map((boss) => (
-              <li key={boss.id} className="boss-item">
-                <span className="boss-name">{boss.name}</span>
-                <code className="boss-id">{boss.id}</code>
-              </li>
-            ))}
-          </ul>
+          <h2 className="content-heading">Areas</h2>
+          {DARK_SOULS_1_AREAS.map((area) => {
+            const bossesInArea = DARK_SOULS_1_BOSSES.filter((b) => b.areaId === area.id);
+            if (bossesInArea.length === 0) return null;
+            return (
+              <div key={area.id} className="area-block">
+                <h3 className="area-name">{area.name}</h3>
+                <ul className="boss-list">
+                  {bossesInArea.map((boss) => (
+                    <li key={boss.id} className="boss-item">
+                      <span className="boss-name-wrap">
+                        <span className="boss-name">{boss.name}</span>
+                        {boss.lordSoul && <span className="boss-tag boss-tag--lord">Lord Soul</span>}
+                      </span>
+                      <code className="boss-id">{boss.id}</code>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
         </section>
       </main>
     </div>

@@ -31,8 +31,63 @@ export type Boss = {
   id: BossId;
   name: string;
   areaId?: AreaId;
+  /** Holds a Lord Soul (or Bequeathed Lord Soul Shard) */
+  lordSoul?: boolean;
 };
 
 export type RunState = {
   run: Run | null;
 };
+
+/** Display definitions for the homepage "db" – keep in sync with types above. */
+export const SCHEMA_DEFINITIONS = [
+  { name: 'FogGateId', kind: 'alias' as const, def: 'string' },
+  { name: 'AreaId', kind: 'alias' as const, def: 'string' },
+  {
+    name: 'FogGate',
+    kind: 'type' as const,
+    def: `{
+  id: FogGateId;
+  name?: string;
+  /** Whether the player has opened / passed through this gate */
+  cleared: boolean;
+}`,
+  },
+  {
+    name: 'Area',
+    kind: 'type' as const,
+    def: `{
+  id: AreaId;
+  name: string;
+  fogGates: FogGate[];
+}`,
+  },
+  {
+    name: 'Run',
+    kind: 'type' as const,
+    def: `{
+  id: string;
+  createdAt: number;
+  areas: Area[];
+}`,
+  },
+  { name: 'BossId', kind: 'alias' as const, def: 'string' },
+  {
+    name: 'Boss',
+    kind: 'type' as const,
+    def: `{
+  id: BossId;
+  name: string;
+  areaId?: AreaId;
+  /** Holds a Lord Soul (or Bequeathed Lord Soul Shard) */
+  lordSoul?: boolean;
+}`,
+  },
+  {
+    name: 'RunState',
+    kind: 'type' as const,
+    def: `{
+  run: Run | null;
+}`,
+  },
+];

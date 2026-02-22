@@ -1,0 +1,25 @@
+import type { Area } from './schema';
+
+/** Dark Souls 1 areas (base + DLC). Display order. */
+export const DARK_SOULS_1_AREAS: Area[] = [
+  { id: 'northern-undead-asylum', name: 'Northern Undead Asylum', fogGates: [] },
+  { id: 'undead-burg', name: 'Undead Burg', fogGates: [] },
+  { id: 'undead-parish', name: 'Undead Parish', fogGates: [] },
+  { id: 'darkroot-garden', name: 'Darkroot Garden', fogGates: [] },
+  { id: 'lower-undead-burg', name: 'Lower Undead Burg', fogGates: [] },
+  { id: 'the-depths', name: 'The Depths', fogGates: [] },
+  { id: 'blighttown', name: 'Blighttown', fogGates: [] },
+  { id: 'sen-fortress', name: "Sen's Fortress", fogGates: [] },
+  { id: 'painted-world', name: 'Painted World of Ariamis', fogGates: [] },
+  { id: 'anor-londo', name: 'Anor Londo', fogGates: [] },
+  { id: 'the-catacombs', name: 'The Catacombs', fogGates: [] },
+  { id: 'tomb-of-the-giants', name: 'Tomb of the Giants', fogGates: [] },
+  { id: 'crystal-cave', name: 'Crystal Cave', fogGates: [] },
+  { id: 'new-londo-ruins', name: 'New Londo Ruins', fogGates: [] },
+  { id: 'demon-ruins', name: 'Demon Ruins', fogGates: [] },
+  { id: 'lost-izalith', name: 'Lost Izalith', fogGates: [] },
+  { id: 'kiln-of-the-first-flame', name: 'Kiln of the First Flame', fogGates: [] },
+  { id: 'sanctuary-garden', name: 'Sanctuary Garden', fogGates: [] },
+  { id: 'royal-wood', name: 'Royal Wood', fogGates: [] },
+  { id: 'chasm-of-the-abyss', name: 'Chasm of the Abyss', fogGates: [] },
+];
