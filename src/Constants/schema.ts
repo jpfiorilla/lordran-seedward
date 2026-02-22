@@ -25,6 +25,14 @@ export type Run = {
   areas: Area[];
 };
 
+export type BossId = string;
+
+export type Boss = {
+  id: BossId;
+  name: string;
+  areaId?: AreaId;
+};
+
 export type RunState = {
   run: Run | null;
 };

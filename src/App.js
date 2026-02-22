@@ -1,4 +1,5 @@
 import './App.css';
+import { DARK_SOULS_1_BOSSES } from './Constants/bosses';
 
 const SCHEMAS = [
   {
@@ -40,6 +41,20 @@ const SCHEMAS = [
 }`,
   },
   {
+    name: 'Boss',
+    kind: 'type',
+    def: `{
+  id: BossId;
+  name: string;
+  areaId?: AreaId;
+}`,
+  },
+  {
+    name: 'BossId',
+    kind: 'alias',
+    def: 'string',
+  },
+  {
     name: 'RunState',
     kind: 'type',
     def: `{
@@ -79,6 +94,19 @@ function App() {
         {SCHEMAS.map((schema) => (
           <SchemaBlock key={schema.name} schema={schema} />
         ))}
+
+        <section className="content-section">
+          <h2 className="content-heading">Dark Souls 1 bosses</h2>
+          <p className="content-note">Area assignment coming soon.</p>
+          <ul className="boss-list">
+            {DARK_SOULS_1_BOSSES.map((boss) => (
+              <li key={boss.id} className="boss-item">
+                <span className="boss-name">{boss.name}</span>
+                <code className="boss-id">{boss.id}</code>
+              </li>
+            ))}
+          </ul>
+        </section>
       </main>
     </div>
   );
