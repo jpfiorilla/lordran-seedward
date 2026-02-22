@@ -1,0 +1,248 @@
+import type { Bonfire } from "./schema";
+
+/**
+ * Dark Souls 1 bonfires by area (Fextralife / community).
+ * warpable = can be warped to with the Lordvessel.
+ */
+export const DARK_SOULS_1_BONFIRES: Bonfire[] = [
+  {
+    id: "asylum-escape-route",
+    name: "Escape Route",
+    areaId: "northern-undead-asylum",
+    warpable: false,
+  },
+  {
+    id: "asylum-courtyard",
+    name: "Court Yard",
+    areaId: "northern-undead-asylum",
+    warpable: false,
+  },
+  {
+    id: "firelink-shrine",
+    name: "Bonfire",
+    areaId: "firelink-shrine",
+    warpable: true,
+  },
+  {
+    id: "undead-burg-bridge",
+    name: "Bridge",
+    areaId: "undead-burg",
+    warpable: false,
+  },
+  {
+    id: "undead-burg-central",
+    name: "Central",
+    areaId: "undead-burg",
+    warpable: false,
+  },
+  {
+    id: "undead-parish-andre",
+    name: "Andre",
+    areaId: "undead-parish",
+    warpable: true,
+  },
+  {
+    id: "darkroot-garden-artorias",
+    name: "Artorias' Door",
+    areaId: "darkroot-garden",
+    warpable: false,
+  },
+  {
+    id: "darkroot-basin-valley",
+    name: "Valley of Drakes",
+    areaId: "darkroot-basin",
+    warpable: false,
+  },
+  {
+    id: "the-depths-slimes",
+    name: "Slimes",
+    areaId: "the-depths",
+    warpable: true,
+  },
+  {
+    id: "blighttown-sever",
+    name: "Sever",
+    areaId: "blighttown",
+    warpable: false,
+  },
+  {
+    id: "blighttown-swamp",
+    name: "Swamp",
+    areaId: "blighttown",
+    warpable: false,
+  },
+  {
+    id: "daughter-of-chaos",
+    name: "Daughter of Chaos",
+    areaId: "quelaags-domain",
+    warpable: true,
+  },
+  {
+    id: "the-abyss",
+    name: "Bonfire",
+    areaId: "new-londo-ruins",
+    warpable: true,
+  },
+  {
+    id: "sens-fortress-rooftop",
+    name: "Rooftop",
+    areaId: "sen-fortress",
+    warpable: false,
+  },
+  {
+    id: "sens-fortress-balcony",
+    name: "Balcony",
+    areaId: "sen-fortress",
+    warpable: false,
+  },
+  {
+    id: "anor-londo-darkmoon-tomb",
+    name: "Darkmoon Tomb",
+    areaId: "anor-londo",
+    warpable: true,
+  },
+  {
+    id: "anor-londo-central",
+    name: "Central Room",
+    areaId: "anor-londo",
+    warpable: true,
+  },
+  {
+    id: "anor-londo-princess",
+    name: "Chamber of the Princess",
+    areaId: "anor-londo",
+    warpable: true,
+  },
+  {
+    id: "painted-world",
+    name: "Entrance",
+    areaId: "painted-world",
+    warpable: true,
+  },
+  {
+    id: "catacombs-entrance",
+    name: "Entrance",
+    areaId: "the-catacombs",
+    warpable: true,
+  },
+  {
+    id: "catacombs-illusory",
+    name: "Illusory Wall",
+    areaId: "the-catacombs",
+    warpable: true,
+  },
+  {
+    id: "tomb-of-giants-patches",
+    name: "Patches",
+    areaId: "tomb-of-the-giants",
+    warpable: true,
+  },
+  {
+    id: "tomb-of-giants-skeleton",
+    name: "Skeleton Beast",
+    areaId: "tomb-of-the-giants",
+    warpable: false,
+  },
+  {
+    id: "tomb-of-giants-nito",
+    name: "Gravelord Nito's Tomb",
+    areaId: "tomb-of-the-giants",
+    warpable: false,
+  },
+  {
+    id: "dukes-archives-entrance",
+    name: "Entrance",
+    areaId: "the-dukes-archives",
+    warpable: false,
+  },
+  {
+    id: "dukes-archives-prison",
+    name: "Prison Cell",
+    areaId: "the-dukes-archives",
+    warpable: false,
+  },
+  {
+    id: "dukes-archives-balcony",
+    name: "Balcony",
+    areaId: "the-dukes-archives",
+    warpable: true,
+  },
+  {
+    id: "crystal-cave-seath",
+    name: "After Seath",
+    areaId: "crystal-cave",
+    warpable: true,
+  },
+  {
+    id: "demon-ruins-entrance",
+    name: "Entrance",
+    areaId: "demon-ruins",
+    warpable: false,
+  },
+  {
+    id: "demon-ruins-central",
+    name: "Central",
+    areaId: "demon-ruins",
+    warpable: false,
+  },
+  {
+    id: "demon-ruins-lower",
+    name: "Lower",
+    areaId: "demon-ruins",
+    warpable: false,
+  },
+  {
+    id: "lost-izalith-centipede",
+    name: "After Centipede Demon",
+    areaId: "lost-izalith",
+    warpable: false,
+  },
+  {
+    id: "lost-izalith-lava",
+    name: "Lava Field",
+    areaId: "lost-izalith",
+    warpable: false,
+  },
+  {
+    id: "lost-izalith-bed-of-chaos",
+    name: "After Bed of Chaos",
+    areaId: "lost-izalith",
+    warpable: false,
+  },
+  {
+    id: "kiln-of-the-first-flame",
+    name: "Bonfire",
+    areaId: "kiln-of-the-first-flame",
+    warpable: true,
+  },
+  {
+    id: "sanctuary-garden",
+    name: "Bonfire",
+    areaId: "sanctuary-garden",
+    warpable: true,
+  },
+  {
+    id: "oolacile-sanctuary",
+    name: "Sanctuary",
+    areaId: "royal-wood",
+    warpable: true,
+  },
+  {
+    id: "oolacile-township",
+    name: "Township",
+    areaId: "royal-wood",
+    warpable: true,
+  },
+  {
+    id: "oolacile-township-dungeon",
+    name: "Township Dungeon",
+    areaId: "royal-wood",
+    warpable: true,
+  },
+  {
+    id: "chasm-of-the-abyss",
+    name: "Bonfire",
+    areaId: "chasm-of-the-abyss",
+    warpable: true,
+  },
+];

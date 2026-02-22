@@ -13,10 +13,21 @@ export type FogGate = {
   cleared: boolean;
 };
 
+export type BonfireId = string;
+
+export type Bonfire = {
+  id: BonfireId;
+  name: string;
+  areaId: AreaId;
+  /** Can be warped to with the Lordvessel */
+  warpable?: boolean;
+};
+
 export type Area = {
   id: AreaId;
   name: string;
   fogGates: FogGate[];
+  bonfires?: Bonfire[];
 };
 
 export type Run = {
@@ -53,6 +64,18 @@ export const SCHEMA_DEFINITIONS = [
   cleared: boolean;
 }`,
   },
+  { name: 'BonfireId', kind: 'alias' as const, def: 'string' },
+  {
+    name: 'Bonfire',
+    kind: 'type' as const,
+    def: `{
+  id: BonfireId;
+  name: string;
+  areaId: AreaId;
+  /** Can be warped to with the Lordvessel */
+  warpable?: boolean;
+}`,
+  },
   {
     name: 'Area',
     kind: 'type' as const,
@@ -60,6 +83,7 @@ export const SCHEMA_DEFINITIONS = [
   id: AreaId;
   name: string;
   fogGates: FogGate[];
+  bonfires?: Bonfire[];
 }`,
   },
   {
