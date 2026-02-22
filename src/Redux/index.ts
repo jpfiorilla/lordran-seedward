@@ -13,4 +13,5 @@ export const setKeyAcquired = runSlice.actions.setKeyAcquired;
 export const setKeyItemAcquired = runSlice.actions.setKeyItemAcquired;
 export const setBellRung = runSlice.actions.setBellRung;
 export const setBossDefeated = runSlice.actions.setBossDefeated;
+export const setShortcutUnlocked = runSlice.actions.setShortcutUnlocked;
 export const clearRun = runSlice.actions.clearRun;

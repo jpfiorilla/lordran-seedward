@@ -9,20 +9,27 @@ Accessible game space is a **graph of nodes** linked by **connections**. Whether
 
 So “sub-areas” that don’t map cleanly to Areas are just **nodes** with or without an `areaId`; connections define how you move between them.
 
+## Fog gates (randomizer)
+
+We build this tool for **randomizer runs**. In randomizers:
+
+- **Fog gates don't respawn** – once you've gone through, they stay open.
+- Each gate has **two sides**, colloquially the **front** and **back** (as the canonical-run player would experience them). Each side attaches to a **node** (`frontNodeId`, `backNodeId` on the gate). All fog gates exist within an **area** (`areaId`).
+- **Each side** of a gate goes to a **completely independent** other front or back of **another** fog gate. So the "connection" through a gate is not fixed: it's determined by the **seed**. The run stores a **warp table** (`run.fogGateWarps`): for each (gate, side), which (other gate, side) you emerge at.
+
+So fog gates are **not** static graph edges. They are first-class entities (id, areaId, frontNodeId, backNodeId, optional bossId). Traversal is: at node N, find gates whose front or back is N; if the gate is available (no bossId or boss defeated), look up the warp target (gate′, side′) and move to that gate's node for that side. Reachability therefore uses both static **connections** (doors, one-ways, always) and **fog gate warps** from the run.
+
 ## Boss arenas
 
-Each boss has an **arena** (a node with `kind: 'arena'` and `bossId`). That arena has one to three **fog gates** (connections with `kind: 'fog_gate'` and `bossId`). Those are well-defined in the game data. A fog-gate connection is **available** when that boss is defeated in the run (or when the gate is marked cleared in run state, depending how we want to track it).
+Each boss has an **arena** (a node with `kind: 'arena'` and `bossId`). That arena has one to three **fog gates**. A fog gate can have `bossId` set so it's only traversable once that boss is defeated.
 
 ## Connection availability (run state)
 
-- **`fog_gate`** – available when `bossId` is in `run.bossesDefeated` (and optionally when the gate is “cleared” in run if we track that).
-- **`door`** – available when `keyId` is in `run.acquiredKeys`.
-- **`one_way`** / **`always`** – available when you can reach `fromNodeId` (derived by walking the graph from a start node).
-
-So we don’t need to store “connection unlocked” in the run; we can **derive** it from connection kind + run state. If we later need to track “gate cleared but boss not defeated” or one-way state, we can add run-state fields then.
+- **Static connections** (`door`, `one_way`, `always`) – door when `keyId` is in `run.acquiredKeys`; shortcut when `shortcutId` is in `run.shortcutsUnlocked`; one_way/always when you can reach `fromNodeId`.
+- **Fog gates** – traversable when the gate has no `bossId` or that boss is in `run.bossesDefeated`; destination comes from `run.fogGateWarps`, not from the static connection graph.
 
 ## Next steps
 
-- Add base data: **nodes** (at least every boss arena + major regions) and **connections** (fog gates, key doors, one-ways).
-- Implement **reachability**: from a set of start nodes, walk the graph using only available connections to get the set of reachable nodes.
-- UI: show the graph or a list of reachable nodes/areas; optionally grey out or hide unreachable parts.
+- Add base data: **nodes** (at least every boss arena + major regions), **connections** (doors, one-ways, paths), and **fog gates** (per area, with frontNodeId/backNodeId).
+- Reachability already walks the graph using connections and fog warps.
+- UI: show reachable nodes/areas; optionally let the user load or edit the fog gate warp table for their seed.

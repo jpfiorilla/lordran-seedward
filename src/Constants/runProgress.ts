@@ -1,4 +1,4 @@
-import type { KeyId, KeyItemId, BellOfAwakeningId, BossId } from './schema';
+import type { KeyId, KeyItemId, BellOfAwakeningId, BossId, ShortcutId } from './schema';
 
 /**
  * Initial run progress: empty arrays (defeated = false for all bosses, etc.).
@@ -16,5 +16,9 @@ export function getInitialBellsRung(): BellOfAwakeningId[] {
 }
 
 export function getInitialBossesDefeated(): BossId[] {
+  return [];
+}
+
+export function getInitialShortcutsUnlocked(): ShortcutId[] {
   return [];
 }

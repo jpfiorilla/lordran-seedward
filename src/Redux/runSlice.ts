@@ -9,12 +9,14 @@ import type {
   KeyItemId,
   BellOfAwakeningId,
   BossId,
+  ShortcutId,
 } from "../Constants/schema";
 import {
   getInitialBellsRung,
   getInitialAcquiredKeys,
   getInitialAcquiredKeyItems,
   getInitialBossesDefeated,
+  getInitialShortcutsUnlocked,
 } from "../Constants/runProgress";
 
 const STORAGE_KEY = "lordran-seedkeeper-run";
@@ -36,11 +38,20 @@ function loadFromStorage(): Run | null {
     const parsed = JSON.parse(raw) as Run;
     if (!parsed?.id || !Array.isArray(parsed.areas)) return null;
     return {
-      ...parsed,
+      id: parsed.id,
+      createdAt: parsed.createdAt,
+      areas: parsed.areas,
+      fogGateWarps: Array.isArray(parsed.fogGateWarps)
+        ? parsed.fogGateWarps
+        : [],
+      fogGatesCleared: Array.isArray(parsed.fogGatesCleared)
+        ? parsed.fogGatesCleared
+        : [],
       acquiredKeys: toIdArray(parsed.acquiredKeys, true),
       acquiredKeyItems: toIdArray(parsed.acquiredKeyItems, true),
       bellsRung: toIdArray(parsed.bellsRung, true),
       bossesDefeated: toIdArray(parsed.bossesDefeated ?? [], true),
+      shortcutsUnlocked: toIdArray(parsed.shortcutsUnlocked ?? [], true),
     };
   } catch {
     return null;
@@ -76,10 +87,13 @@ const runSlice = createSlice({
         id: crypto.randomUUID(),
         createdAt: Date.now(),
         areas: [],
+        fogGateWarps: [],
+        fogGatesCleared: [],
         acquiredKeys: getInitialAcquiredKeys(),
         acquiredKeyItems: getInitialAcquiredKeyItems(),
         bellsRung: getInitialBellsRung(),
         bossesDefeated: getInitialBossesDefeated(),
+        shortcutsUnlocked: getInitialShortcutsUnlocked(),
       };
       saveToStorage(state.run);
     },
@@ -121,11 +135,14 @@ const runSlice = createSlice({
       }>,
     ) {
       if (!state.run) return;
-      const area = state.run.areas.find((a) => a.id === action.payload.areaId);
-      if (!area) return;
-      const gate = area.fogGates.find((g) => g.id === action.payload.fogGateId);
-      if (!gate) return;
-      gate.cleared = action.payload.cleared;
+      const { fogGateId, cleared } = action.payload;
+      const list = state.run.fogGatesCleared ?? [];
+      if (cleared) {
+        if (!list.includes(fogGateId))
+          state.run.fogGatesCleared = [...list, fogGateId];
+      } else {
+        state.run.fogGatesCleared = list.filter((id) => id !== fogGateId);
+      }
       saveToStorage(state.run);
     },
     setKeyAcquired(
@@ -186,6 +203,22 @@ const runSlice = createSlice({
       } else {
         state.run.bossesDefeated = state.run.bossesDefeated.filter(
           (id) => id !== bossId,
+        );
+      }
+      saveToStorage(state.run);
+    },
+    setShortcutUnlocked(
+      state,
+      action: PayloadAction<{ shortcutId: ShortcutId; unlocked: boolean }>,
+    ) {
+      if (!state.run) return;
+      const { shortcutId, unlocked } = action.payload;
+      if (unlocked) {
+        if (!state.run.shortcutsUnlocked.includes(shortcutId))
+          state.run.shortcutsUnlocked.push(shortcutId);
+      } else {
+        state.run.shortcutsUnlocked = state.run.shortcutsUnlocked.filter(
+          (id) => id !== shortcutId,
         );
       }
       saveToStorage(state.run);
