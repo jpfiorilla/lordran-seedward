@@ -5,7 +5,7 @@ import { DARK_SOULS_1_BOSSES } from './Constants/bosses';
 import { DARK_SOULS_1_BONFIRES } from './Constants/bonfires';
 import { BELLS_OF_AWAKENING } from './Constants/bellsOfAwakening';
 import { useAppDispatch, useAppSelector } from './redux/hooks';
-import { startNewRun, setBellRung, setBossDefeated } from './redux';
+import { startNewRun, setBellRung, setBossDefeated, clearRun } from './redux';
 
 function SchemaBlock({ schema }) {
   return (
@@ -30,8 +30,17 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1 className="App-title">Lordran Seedkeeper</h1>
-        <p className="App-subtitle">Run state schemas (in development)</p>
+        <div className="App-header-inner">
+          <div>
+            <h1 className="App-title">Lordran Seedkeeper</h1>
+            <p className="App-subtitle">Run state schemas (in development)</p>
+          </div>
+          {run && (
+            <button type="button" className="btn btn-danger" onClick={() => dispatch(clearRun())}>
+              Reset run
+            </button>
+          )}
+        </div>
       </header>
       <main className="App-main">
         <section className="content-section content-section--run-progress">
