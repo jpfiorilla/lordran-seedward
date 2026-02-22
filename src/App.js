@@ -3,6 +3,9 @@ import { SCHEMA_DEFINITIONS } from './Constants/schema';
 import { DARK_SOULS_1_AREAS } from './Constants/areas';
 import { DARK_SOULS_1_BOSSES } from './Constants/bosses';
 import { DARK_SOULS_1_BONFIRES } from './Constants/bonfires';
+import { BELLS_OF_AWAKENING } from './Constants/bellsOfAwakening';
+import { useAppDispatch, useAppSelector } from './redux/hooks';
+import { startNewRun, setBellRung } from './redux';
 
 function SchemaBlock({ schema }) {
   return (
@@ -21,6 +24,9 @@ function SchemaBlock({ schema }) {
 }
 
 function App() {
+  const dispatch = useAppDispatch();
+  const run = useAppSelector((s) => s.run.run);
+
   return (
     <div className="App">
       <header className="App-header">
@@ -80,6 +86,36 @@ function App() {
               </div>
             );
           })}
+        </section>
+
+        <section className="content-section">
+          <h2 className="content-heading">Bells of Awakening</h2>
+          {!run && (
+            <p className="run-prompt">
+              <button type="button" className="btn btn-primary" onClick={() => dispatch(startNewRun())}>
+                Start run
+              </button>
+              {' '}to track progress (rung state).
+            </p>
+          )}
+          <ul className="bell-list">
+            {BELLS_OF_AWAKENING.map((bell) => (
+              <li key={bell.id} className="bell-item">
+                {run && (
+                  <label className="bell-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={run.bellsRung.has(bell.id)}
+                      onChange={(e) => dispatch(setBellRung({ bellId: bell.id, rung: e.target.checked }))}
+                    />
+                    <span className="bell-checkbox-label">Rung</span>
+                  </label>
+                )}
+                <span className="bell-name">{bell.name}</span>
+                <code className="bell-id">{bell.id}</code>
+              </li>
+            ))}
+          </ul>
         </section>
       </main>
     </div>

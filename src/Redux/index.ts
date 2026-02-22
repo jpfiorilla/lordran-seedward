@@ -1,12 +1,15 @@
-export { store } from './store';
-export type { RootState, AppDispatch } from './store';
-export { useAppDispatch, useAppSelector } from './hooks';
-export {
-  setRun,
-  startNewRun,
-  addArea,
-  updateArea,
-  addFogGate,
-  setFogGateCleared,
-  clearRun,
-} from './runSlice';
+import { runSlice } from "./runSlice";
+export { store } from "./store";
+export type { RootState, AppDispatch } from "./store";
+export { useAppDispatch, useAppSelector } from "./hooks";
+export { runSlice };
+export const setRun = runSlice.actions.setRun;
+export const startNewRun = runSlice.actions.startNewRun;
+export const addArea = runSlice.actions.addArea;
+export const updateArea = runSlice.actions.updateArea;
+export const addFogGate = runSlice.actions.addFogGate;
+export const setFogGateCleared = runSlice.actions.setFogGateCleared;
+export const setKeyAcquired = runSlice.actions.setKeyAcquired;
+export const setKeyItemAcquired = runSlice.actions.setKeyItemAcquired;
+export const setBellRung = runSlice.actions.setBellRung;
+export const clearRun = runSlice.actions.clearRun;

@@ -215,3 +215,75 @@
   background: #422006;
   color: #fbbf24;
 }
+
+.run-prompt {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  color: #a1a1aa;
+}
+
+.btn {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary {
+  background: #3b82f6;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+}
+
+.bell-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.bell-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+  background: #18181b;
+  border: 1px solid #27272a;
+  border-radius: 6px;
+}
+
+.bell-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.bell-checkbox input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #3b82f6;
+}
+
+.bell-checkbox-label {
+  font-size: 0.8rem;
+  color: #71717a;
+}
+
+.bell-name {
+  font-weight: 500;
+  flex: 1;
+}
+
+.bell-id {
+  font-size: 0.75rem;
+  color: #71717a;
+  font-family: ui-monospace, "SF Mono", Menlo, Monaco, "Cascadia Mono", monospace;
+}

@@ -34,6 +34,12 @@ export type Run = {
   id: string;
   createdAt: number;
   areas: Area[];
+  /** Run progress: key ids acquired (empty Set initially). */
+  acquiredKeys: Set<KeyId>;
+  /** Run progress: key item ids acquired (empty Set initially). */
+  acquiredKeyItems: Set<KeyItemId>;
+  /** Run progress: bell ids rung (empty Set initially). */
+  bellsRung: Set<BellOfAwakeningId>;
 };
 
 export type BossId = string;
@@ -44,6 +50,30 @@ export type Boss = {
   areaId?: AreaId;
   /** Holds a Lord Soul (or Bequeathed Lord Soul Shard) */
   lordSoul?: boolean;
+};
+
+export type KeyId = string;
+
+export type Key = {
+  id: KeyId;
+  name: string;
+  areaId?: AreaId;
+};
+
+export type KeyItemId = string;
+
+export type KeyItem = {
+  id: KeyItemId;
+  name: string;
+  areaId?: AreaId;
+};
+
+export type BellOfAwakeningId = string;
+
+export type BellOfAwakening = {
+  id: BellOfAwakeningId;
+  name: string;
+  areaId: AreaId;
 };
 
 export type RunState = {
@@ -86,6 +116,9 @@ export const SCHEMA_DEFINITIONS = [
   bonfires?: Bonfire[];
 }`,
   },
+  { name: 'KeyId', kind: 'alias' as const, def: 'string' },
+  { name: 'KeyItemId', kind: 'alias' as const, def: 'string' },
+  { name: 'BellOfAwakeningId', kind: 'alias' as const, def: 'string' },
   {
     name: 'Run',
     kind: 'type' as const,
@@ -93,6 +126,9 @@ export const SCHEMA_DEFINITIONS = [
   id: string;
   createdAt: number;
   areas: Area[];
+  acquiredKeys: Set<KeyId>;
+  acquiredKeyItems: Set<KeyItemId>;
+  bellsRung: Set<BellOfAwakeningId>;
 }`,
   },
   { name: 'BossId', kind: 'alias' as const, def: 'string' },
@@ -105,6 +141,33 @@ export const SCHEMA_DEFINITIONS = [
   areaId?: AreaId;
   /** Holds a Lord Soul (or Bequeathed Lord Soul Shard) */
   lordSoul?: boolean;
+}`,
+  },
+  {
+    name: 'Key',
+    kind: 'type' as const,
+    def: `{
+  id: KeyId;
+  name: string;
+  areaId?: AreaId;
+}`,
+  },
+  {
+    name: 'KeyItem',
+    kind: 'type' as const,
+    def: `{
+  id: KeyItemId;
+  name: string;
+  areaId?: AreaId;
+}`,
+  },
+  {
+    name: 'BellOfAwakening',
+    kind: 'type' as const,
+    def: `{
+  id: BellOfAwakeningId;
+  name: string;
+  areaId: AreaId;
 }`,
   },
   {
