@@ -53,7 +53,7 @@ function App() {
                     <label className="bell-checkbox">
                       <input
                         type="checkbox"
-                        checked={run.bellsRung.has(bell.id)}
+                        checked={run.bellsRung.includes(bell.id)}
                         onChange={(e) => dispatch(setBellRung({ bellId: bell.id, rung: e.target.checked }))}
                       />
                       <span className="bell-checkbox-label">Rung</span>
@@ -110,7 +110,7 @@ function App() {
                             <label className="boss-checkbox">
                               <input
                                 type="checkbox"
-                                checked={run.bossesDefeated.has(boss.id)}
+                                checked={run.bossesDefeated.includes(boss.id)}
                                 onChange={(e) => dispatch(setBossDefeated({ bossId: boss.id, defeated: e.target.checked }))}
                               />
                               <span className="boss-checkbox-label">Defeated</span>

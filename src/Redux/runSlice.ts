@@ -19,27 +19,6 @@ import {
 
 const STORAGE_KEY = "lordran-seedkeeper-run";
 
-/** Stored shape (Sets serialized as arrays). */
-type RunStored = Omit<
-  Run,
-  "acquiredKeys" | "acquiredKeyItems" | "bellsRung" | "bossesDefeated"
-> & {
-  acquiredKeys: KeyId[];
-  acquiredKeyItems: KeyItemId[];
-  bellsRung: BellOfAwakeningId[];
-  bossesDefeated: BossId[];
-};
-
-function runToStored(run: Run): RunStored {
-  return {
-    ...run,
-    acquiredKeys: Array.from(run.acquiredKeys),
-    acquiredKeyItems: Array.from(run.acquiredKeyItems),
-    bellsRung: Array.from(run.bellsRung),
-    bossesDefeated: Array.from(run.bossesDefeated),
-  };
-}
-
 function toIdArray(value: unknown, asRecord: boolean): string[] {
   if (Array.isArray(value)) return value;
   if (asRecord && value && typeof value === "object") {
@@ -50,23 +29,19 @@ function toIdArray(value: unknown, asRecord: boolean): string[] {
   return [];
 }
 
-function storedToRun(stored: RunStored): Run {
-  return {
-    ...stored,
-    acquiredKeys: new Set(toIdArray(stored.acquiredKeys, true)),
-    acquiredKeyItems: new Set(toIdArray(stored.acquiredKeyItems, true)),
-    bellsRung: new Set(toIdArray(stored.bellsRung, true)),
-    bossesDefeated: new Set(toIdArray(stored.bossesDefeated ?? [], true)),
-  };
-}
-
 function loadFromStorage(): Run | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
-    const stored = JSON.parse(raw) as RunStored;
-    if (!stored?.id || !Array.isArray(stored.areas)) return null;
-    return storedToRun(stored);
+    const parsed = JSON.parse(raw) as Run;
+    if (!parsed?.id || !Array.isArray(parsed.areas)) return null;
+    return {
+      ...parsed,
+      acquiredKeys: toIdArray(parsed.acquiredKeys, true),
+      acquiredKeyItems: toIdArray(parsed.acquiredKeyItems, true),
+      bellsRung: toIdArray(parsed.bellsRung, true),
+      bossesDefeated: toIdArray(parsed.bossesDefeated ?? [], true),
+    };
   } catch {
     return null;
   }
@@ -75,7 +50,7 @@ function loadFromStorage(): Run | null {
 function saveToStorage(run: Run | null) {
   try {
     if (run) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(runToStored(run)));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(run));
     } else {
       localStorage.removeItem(STORAGE_KEY);
     }
@@ -159,8 +134,14 @@ const runSlice = createSlice({
     ) {
       if (!state.run) return;
       const { keyId, acquired } = action.payload;
-      if (acquired) state.run.acquiredKeys.add(keyId);
-      else state.run.acquiredKeys.delete(keyId);
+      if (acquired) {
+        if (!state.run.acquiredKeys.includes(keyId))
+          state.run.acquiredKeys.push(keyId);
+      } else {
+        state.run.acquiredKeys = state.run.acquiredKeys.filter(
+          (id) => id !== keyId,
+        );
+      }
       saveToStorage(state.run);
     },
     setKeyItemAcquired(
@@ -169,8 +150,14 @@ const runSlice = createSlice({
     ) {
       if (!state.run) return;
       const { keyItemId, acquired } = action.payload;
-      if (acquired) state.run.acquiredKeyItems.add(keyItemId);
-      else state.run.acquiredKeyItems.delete(keyItemId);
+      if (acquired) {
+        if (!state.run.acquiredKeyItems.includes(keyItemId))
+          state.run.acquiredKeyItems.push(keyItemId);
+      } else {
+        state.run.acquiredKeyItems = state.run.acquiredKeyItems.filter(
+          (id) => id !== keyItemId,
+        );
+      }
       saveToStorage(state.run);
     },
     setBellRung(
@@ -179,8 +166,12 @@ const runSlice = createSlice({
     ) {
       if (!state.run) return;
       const { bellId, rung } = action.payload;
-      if (rung) state.run.bellsRung.add(bellId);
-      else state.run.bellsRung.delete(bellId);
+      if (rung) {
+        if (!state.run.bellsRung.includes(bellId))
+          state.run.bellsRung.push(bellId);
+      } else {
+        state.run.bellsRung = state.run.bellsRung.filter((id) => id !== bellId);
+      }
       saveToStorage(state.run);
     },
     setBossDefeated(
@@ -189,8 +180,14 @@ const runSlice = createSlice({
     ) {
       if (!state.run) return;
       const { bossId, defeated } = action.payload;
-      if (defeated) state.run.bossesDefeated.add(bossId);
-      else state.run.bossesDefeated.delete(bossId);
+      if (defeated) {
+        if (!state.run.bossesDefeated.includes(bossId))
+          state.run.bossesDefeated.push(bossId);
+      } else {
+        state.run.bossesDefeated = state.run.bossesDefeated.filter(
+          (id) => id !== bossId,
+        );
+      }
       saveToStorage(state.run);
     },
     clearRun(state) {

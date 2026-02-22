@@ -34,14 +34,14 @@ export type Run = {
   id: string;
   createdAt: number;
   areas: Area[];
-  /** Run progress: key ids acquired (empty Set initially). */
-  acquiredKeys: Set<KeyId>;
-  /** Run progress: key item ids acquired (empty Set initially). */
-  acquiredKeyItems: Set<KeyItemId>;
-  /** Run progress: bell ids rung (empty Set initially). */
-  bellsRung: Set<BellOfAwakeningId>;
-  /** Run progress: boss ids defeated (empty Set initially = all false). */
-  bossesDefeated: Set<BossId>;
+  /** Run progress: key ids acquired (empty array initially). */
+  acquiredKeys: KeyId[];
+  /** Run progress: key item ids acquired (empty array initially). */
+  acquiredKeyItems: KeyItemId[];
+  /** Run progress: bell ids rung (empty array initially). */
+  bellsRung: BellOfAwakeningId[];
+  /** Run progress: boss ids defeated (empty array initially = all false). */
+  bossesDefeated: BossId[];
 };
 
 export type BossId = string;
@@ -128,10 +128,10 @@ export const SCHEMA_DEFINITIONS = [
   id: string;
   createdAt: number;
   areas: Area[];
-  acquiredKeys: Set<KeyId>;
-  acquiredKeyItems: Set<KeyItemId>;
-  bellsRung: Set<BellOfAwakeningId>;
-  bossesDefeated: Set<BossId>;
+  acquiredKeys: KeyId[];
+  acquiredKeyItems: KeyItemId[];
+  bellsRung: BellOfAwakeningId[];
+  bossesDefeated: BossId[];
 }`,
   },
   { name: 'BossId', kind: 'alias' as const, def: 'string' },

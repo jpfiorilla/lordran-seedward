@@ -1,20 +1,20 @@
 import type { KeyId, KeyItemId, BellOfAwakeningId, BossId } from './schema';
 
 /**
- * Initial run progress: empty Sets for all run-state collections (defeated = false for all bosses).
+ * Initial run progress: empty arrays (defeated = false for all bosses, etc.).
  */
-export function getInitialAcquiredKeys(): Set<KeyId> {
-  return new Set();
+export function getInitialAcquiredKeys(): KeyId[] {
+  return [];
 }
 
-export function getInitialAcquiredKeyItems(): Set<KeyItemId> {
-  return new Set();
+export function getInitialAcquiredKeyItems(): KeyItemId[] {
+  return [];
 }
 
-export function getInitialBellsRung(): Set<BellOfAwakeningId> {
-  return new Set();
+export function getInitialBellsRung(): BellOfAwakeningId[] {
+  return [];
 }
 
-export function getInitialBossesDefeated(): Set<BossId> {
-  return new Set();
+export function getInitialBossesDefeated(): BossId[] {
+  return [];
 }
