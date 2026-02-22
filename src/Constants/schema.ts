@@ -40,6 +40,8 @@ export type Run = {
   acquiredKeyItems: Set<KeyItemId>;
   /** Run progress: bell ids rung (empty Set initially). */
   bellsRung: Set<BellOfAwakeningId>;
+  /** Run progress: boss ids defeated (empty Set initially = all false). */
+  bossesDefeated: Set<BossId>;
 };
 
 export type BossId = string;
@@ -129,6 +131,7 @@ export const SCHEMA_DEFINITIONS = [
   acquiredKeys: Set<KeyId>;
   acquiredKeyItems: Set<KeyItemId>;
   bellsRung: Set<BellOfAwakeningId>;
+  bossesDefeated: Set<BossId>;
 }`,
   },
   { name: 'BossId', kind: 'alias' as const, def: 'string' },

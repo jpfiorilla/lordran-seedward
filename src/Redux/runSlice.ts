@@ -8,11 +8,13 @@ import type {
   KeyId,
   KeyItemId,
   BellOfAwakeningId,
+  BossId,
 } from "../Constants/schema";
 import {
   getInitialBellsRung,
   getInitialAcquiredKeys,
   getInitialAcquiredKeyItems,
+  getInitialBossesDefeated,
 } from "../Constants/runProgress";
 
 const STORAGE_KEY = "lordran-seedkeeper-run";
@@ -20,11 +22,12 @@ const STORAGE_KEY = "lordran-seedkeeper-run";
 /** Stored shape (Sets serialized as arrays). */
 type RunStored = Omit<
   Run,
-  "acquiredKeys" | "acquiredKeyItems" | "bellsRung"
+  "acquiredKeys" | "acquiredKeyItems" | "bellsRung" | "bossesDefeated"
 > & {
   acquiredKeys: KeyId[];
   acquiredKeyItems: KeyItemId[];
   bellsRung: BellOfAwakeningId[];
+  bossesDefeated: BossId[];
 };
 
 function runToStored(run: Run): RunStored {
@@ -33,6 +36,7 @@ function runToStored(run: Run): RunStored {
     acquiredKeys: Array.from(run.acquiredKeys),
     acquiredKeyItems: Array.from(run.acquiredKeyItems),
     bellsRung: Array.from(run.bellsRung),
+    bossesDefeated: Array.from(run.bossesDefeated),
   };
 }
 
@@ -52,6 +56,7 @@ function storedToRun(stored: RunStored): Run {
     acquiredKeys: new Set(toIdArray(stored.acquiredKeys, true)),
     acquiredKeyItems: new Set(toIdArray(stored.acquiredKeyItems, true)),
     bellsRung: new Set(toIdArray(stored.bellsRung, true)),
+    bossesDefeated: new Set(toIdArray(stored.bossesDefeated ?? [], true)),
   };
 }
 
@@ -99,6 +104,7 @@ const runSlice = createSlice({
         acquiredKeys: getInitialAcquiredKeys(),
         acquiredKeyItems: getInitialAcquiredKeyItems(),
         bellsRung: getInitialBellsRung(),
+        bossesDefeated: getInitialBossesDefeated(),
       };
       saveToStorage(state.run);
     },
@@ -175,6 +181,16 @@ const runSlice = createSlice({
       const { bellId, rung } = action.payload;
       if (rung) state.run.bellsRung.add(bellId);
       else state.run.bellsRung.delete(bellId);
+      saveToStorage(state.run);
+    },
+    setBossDefeated(
+      state,
+      action: PayloadAction<{ bossId: BossId; defeated: boolean }>,
+    ) {
+      if (!state.run) return;
+      const { bossId, defeated } = action.payload;
+      if (defeated) state.run.bossesDefeated.add(bossId);
+      else state.run.bossesDefeated.delete(bossId);
       saveToStorage(state.run);
     },
     clearRun(state) {

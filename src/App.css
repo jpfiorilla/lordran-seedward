@@ -84,6 +84,23 @@
   border-top: 1px solid #27272a;
 }
 
+.content-section--run-progress {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.content-subsection {
+  margin-top: 0.75rem;
+}
+
+.content-subheading {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #a1a1aa;
+}
+
 .content-heading {
   margin: 0 0 0.25rem;
   font-size: 1.25rem;
@@ -186,6 +203,25 @@
   background: #18181b;
   border: 1px solid #27272a;
   border-radius: 6px;
+}
+
+.boss-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.boss-checkbox input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #3b82f6;
+}
+
+.boss-checkbox-label {
+  font-size: 0.8rem;
+  color: #71717a;
 }
 
 .boss-name-wrap {

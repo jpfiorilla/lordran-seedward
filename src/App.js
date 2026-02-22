@@ -5,7 +5,7 @@ import { DARK_SOULS_1_BOSSES } from './Constants/bosses';
 import { DARK_SOULS_1_BONFIRES } from './Constants/bonfires';
 import { BELLS_OF_AWAKENING } from './Constants/bellsOfAwakening';
 import { useAppDispatch, useAppSelector } from './redux/hooks';
-import { startNewRun, setBellRung } from './redux';
+import { startNewRun, setBellRung, setBossDefeated } from './redux';
 
 function SchemaBlock({ schema }) {
   return (
@@ -34,6 +34,39 @@ function App() {
         <p className="App-subtitle">Run state schemas (in development)</p>
       </header>
       <main className="App-main">
+        <section className="content-section content-section--run-progress">
+          <h2 className="content-heading">Current run progress</h2>
+          <section className="content-subsection">
+            <h3 className="content-subheading">Bells of Awakening</h3>
+            {!run && (
+              <p className="run-prompt">
+                <button type="button" className="btn btn-primary" onClick={() => dispatch(startNewRun())}>
+                  Start run
+                </button>
+                {' '}to track progress (rung state).
+              </p>
+            )}
+            <ul className="bell-list">
+              {BELLS_OF_AWAKENING.map((bell) => (
+                <li key={bell.id} className="bell-item">
+                  {run && (
+                    <label className="bell-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={run.bellsRung.has(bell.id)}
+                        onChange={(e) => dispatch(setBellRung({ bellId: bell.id, rung: e.target.checked }))}
+                      />
+                      <span className="bell-checkbox-label">Rung</span>
+                    </label>
+                  )}
+                  <span className="bell-name">{bell.name}</span>
+                  <code className="bell-id">{bell.id}</code>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </section>
+
         <p className="schema-intro">
           Dark Souls areas and fog gates. Areas contain FogGates; tracking which
           gates are cleared = run progress.
@@ -73,6 +106,16 @@ function App() {
                     <ul className="boss-list">
                       {bossesInArea.map((boss) => (
                         <li key={boss.id} className="boss-item">
+                          {run && (
+                            <label className="boss-checkbox">
+                              <input
+                                type="checkbox"
+                                checked={run.bossesDefeated.has(boss.id)}
+                                onChange={(e) => dispatch(setBossDefeated({ bossId: boss.id, defeated: e.target.checked }))}
+                              />
+                              <span className="boss-checkbox-label">Defeated</span>
+                            </label>
+                          )}
                           <span className="boss-name-wrap">
                             <span className="boss-name">{boss.name}</span>
                             {boss.lordSoul && <span className="boss-tag boss-tag--lord">Lord Soul</span>}
@@ -86,36 +129,6 @@ function App() {
               </div>
             );
           })}
-        </section>
-
-        <section className="content-section">
-          <h2 className="content-heading">Bells of Awakening</h2>
-          {!run && (
-            <p className="run-prompt">
-              <button type="button" className="btn btn-primary" onClick={() => dispatch(startNewRun())}>
-                Start run
-              </button>
-              {' '}to track progress (rung state).
-            </p>
-          )}
-          <ul className="bell-list">
-            {BELLS_OF_AWAKENING.map((bell) => (
-              <li key={bell.id} className="bell-item">
-                {run && (
-                  <label className="bell-checkbox">
-                    <input
-                      type="checkbox"
-                      checked={run.bellsRung.has(bell.id)}
-                      onChange={(e) => dispatch(setBellRung({ bellId: bell.id, rung: e.target.checked }))}
-                    />
-                    <span className="bell-checkbox-label">Rung</span>
-                  </label>
-                )}
-                <span className="bell-name">{bell.name}</span>
-                <code className="bell-id">{bell.id}</code>
-              </li>
-            ))}
-          </ul>
         </section>
       </main>
     </div>
