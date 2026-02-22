@@ -1,38 +1,79 @@
 .App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+  min-height: 100vh;
+  background: #1a1b1e;
+  color: #e4e4e7;
 }
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+  padding: 2rem 1.5rem;
+  border-bottom: 1px solid #2d2d30;
+}
+
+.App-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.App-subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  color: #71717a;
+}
+
+.App-main {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.schema-intro {
+  margin: 0 0 1.5rem;
+  font-size: 0.95rem;
+  color: #a1a1aa;
+  line-height: 1.5;
+}
+
+.schema-block {
+  margin-bottom: 2rem;
+}
+
+.schema-name {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  gap: 0.5rem;
 }
 
-.App-link {
-  color: #61dafb;
+.schema-kind {
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: #71717a;
+  background: #27272a;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.schema-def {
+  margin: 0;
+  padding: 1rem 1.25rem;
+  background: #18181b;
+  border: 1px solid #27272a;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.schema-def code {
+  font-family: ui-monospace, "SF Mono", Menlo, Monaco, "Cascadia Mono", monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #d4d4d8;
+}
+
+.schema-def .comment {
+  color: #6b7280;
 }
