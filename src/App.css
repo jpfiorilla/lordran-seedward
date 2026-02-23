@@ -557,13 +557,28 @@
 }
 
 .fog-canvas-handle {
-  width: 14px;
-  height: 14px;
+  --handle-color: rgba(255, 255, 255, 0.9);
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  border: 1px solid #1a1b1e;
   padding: 0;
   cursor: grab;
   flex-shrink: 0;
+  background: var(--handle-color);
+  border: 2px solid rgba(0, 0, 0, 0.4);
+  position: relative;
+}
+
+.fog-canvas-handle::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  background: #0f1012;
+}
+
+.fog-canvas-handle--connected::after {
+  display: none;
 }
 
 .fog-canvas-handle:active {
@@ -571,15 +586,11 @@
 }
 
 .fog-canvas-handle:hover {
-  filter: brightness(1.2);
+  filter: brightness(1.15);
 }
 
-.fog-canvas-handle--front {
-  background: rgba(255, 255, 255, 0.9);
-}
-
-.fog-canvas-handle--back {
-  background: rgba(200, 200, 255, 0.9);
+.fog-canvas-handle--hover-target {
+  box-shadow: inset 0 0 0 2px #0f1012, 0 0 0 2px var(--handle-color);
 }
 
 .fog-canvas-empty {
@@ -593,11 +604,10 @@
 }
 
 .fog-canvas-warp-line {
-  stroke: rgba(148, 163, 184, 0.8);
   fill: none;
   pointer-events: none;
 }
 
 .fog-canvas-warp-line--preview {
-  stroke: rgba(96, 165, 250, 0.9);
+  stroke-dasharray: 5 4;
 }

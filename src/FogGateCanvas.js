@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, useLayoutEffect } from "react";
+import { useRef, useState, useCallback, useLayoutEffect, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import { setFogGateWarp, removeFogGateWarp, startNewRun } from "./redux";
 import { getRegionLayouts } from "./Constants/canvasLayout";
@@ -6,6 +6,13 @@ import { getRegionLayouts } from "./Constants/canvasLayout";
 function sideRefKey(ref) {
   return `${ref.fogGateId}:${ref.side}`;
 }
+
+/** Crafty / audio-studio cable palette (Reason-style soft synth wires). */
+const CONNECTION_PALETTE = [
+  "#e07a5f", "#81b29a", "#3d405b", "#f4a261", "#2a9d8f",
+  "#e9c46a", "#264653", "#e76f51", "#457b9d", "#9b5de5",
+  "#00b4d8", "#06d6a0", "#ef476f", "#ffd166", "#118ab2",
+];
 
 /** Quadratic curve control point so the line bends and reads clearly. */
 function getCurveControlPoint(x1, y1, x2, y2) {
@@ -33,8 +40,26 @@ export default function FogGateCanvas() {
   const [containerRect, setContainerRect] = useState({ width: 1, height: 1 });
   const [dragging, setDragging] = useState(null);
   const [dragPos, setDragPos] = useState(null);
+  const [hoverTarget, setHoverTarget] = useState(null);
 
   const layouts = getRegionLayouts();
+  const warps = useMemo(
+    () => run?.fogGateWarps ?? [],
+    [run?.fogGateWarps]
+  );
+
+  const getConnectionColorForHandle = useCallback(
+    (fogGateId, side) => {
+      const idx = warps.findIndex(
+        (w) => w.from.fogGateId === fogGateId && w.from.side === side
+      );
+      return idx >= 0 ? CONNECTION_PALETTE[idx % CONNECTION_PALETTE.length] : null;
+    },
+    [warps]
+  );
+
+  const potentialConnectionColor =
+    CONNECTION_PALETTE[warps.length % CONNECTION_PALETTE.length];
 
   const measureHandles = useCallback(() => {
     const container = containerRef.current;
@@ -106,6 +131,7 @@ export default function FogGateCanvas() {
       }
       setDragging(null);
       setDragPos(null);
+      setHoverTarget(null);
     },
     [dragging, run, dispatch]
   );
@@ -124,6 +150,7 @@ export default function FogGateCanvas() {
     if (dragging) {
       setDragging(null);
       setDragPos(null);
+      setHoverTarget(null);
     }
   }, [dragging]);
 
@@ -142,7 +169,6 @@ export default function FogGateCanvas() {
     );
   }
 
-  const warps = run.fogGateWarps ?? [];
   const { width: svgW, height: svgH } = containerRect;
 
   return (
@@ -171,13 +197,16 @@ export default function FogGateCanvas() {
                 fromPos.x, fromPos.y,
                 toPos.x, toPos.y
               );
+              const strokeColor =
+                CONNECTION_PALETTE[i % CONNECTION_PALETTE.length];
               return (
                 <path
                   key={`${sideRefKey(warp.from)}-${i}`}
                   d={`M ${fromPos.x} ${fromPos.y} Q ${cx} ${cy} ${toPos.x} ${toPos.y}`}
                   className="fog-canvas-warp-line"
                   fill="none"
-                  strokeWidth={2}
+                  stroke={strokeColor}
+                  strokeWidth={2.5}
                 />
               );
             })}
@@ -195,8 +224,9 @@ export default function FogGateCanvas() {
                   d={`M ${fromPos.x} ${fromPos.y} Q ${cx} ${cy} ${dragPos.x} ${dragPos.y}`}
                   className="fog-canvas-warp-line fog-canvas-warp-line--preview"
                   fill="none"
-                  strokeWidth={2}
-                  strokeDasharray="4 4"
+                  stroke={potentialConnectionColor}
+                  strokeWidth={2.5}
+                  strokeDasharray="5 4"
                 />
               );
             })()}
@@ -220,42 +250,56 @@ export default function FogGateCanvas() {
                       {gate.name ?? gate.id}
                     </span>
                     <div className="fog-canvas-handles">
-                      <button
-                        type="button"
-                        className="fog-canvas-handle fog-canvas-handle--front"
-                        ref={(el) =>
-                          setHandleRef(
-                            sideRefKey({ fogGateId: gate.id, side: "front" }),
-                            el
-                          )
-                        }
-                        onPointerDown={(e) =>
-                          onHandlePointerDown(e, gate.id, "front")
-                        }
-                        onPointerUp={(e) =>
-                          onHandlePointerUp(e, gate.id, "front")
-                        }
-                        title="Front (drag to connect, ⌘/Ctrl+click to delete)"
-                        aria-label={`${gate.name ?? gate.id} front`}
-                      />
-                      <button
-                        type="button"
-                        className="fog-canvas-handle fog-canvas-handle--back"
-                        ref={(el) =>
-                          setHandleRef(
-                            sideRefKey({ fogGateId: gate.id, side: "back" }),
-                            el
-                          )
-                        }
-                        onPointerDown={(e) =>
-                          onHandlePointerDown(e, gate.id, "back")
-                        }
-                        onPointerUp={(e) =>
-                          onHandlePointerUp(e, gate.id, "back")
-                        }
-                        title="Back (drag to connect, ⌘/Ctrl+click to delete)"
-                        aria-label={`${gate.name ?? gate.id} back`}
-                      />
+                      {(["front", "back"]).map((side) => {
+                        const isHoverTarget =
+                          dragging &&
+                          hoverTarget?.fogGateId === gate.id &&
+                          hoverTarget?.side === side &&
+                          !(
+                            dragging.fogGateId === gate.id &&
+                            dragging.side === side
+                          );
+                        const connectionColor = getConnectionColorForHandle(
+                          gate.id,
+                          side
+                        );
+                        const displayColor = isHoverTarget
+                          ? potentialConnectionColor
+                          : connectionColor ??
+                            (side === "front"
+                              ? "rgba(255,255,255,0.9)"
+                              : "rgba(200,200,255,0.9)");
+                        return (
+                          <button
+                            key={side}
+                            type="button"
+                            className={`fog-canvas-handle fog-canvas-handle--${side}${
+                              connectionColor ? " fog-canvas-handle--connected" : ""
+                            }${isHoverTarget ? " fog-canvas-handle--hover-target" : ""}`}
+                            ref={(el) =>
+                              setHandleRef(
+                                sideRefKey({ fogGateId: gate.id, side }),
+                                el
+                              )
+                            }
+                            style={{ "--handle-color": displayColor }}
+                            onPointerDown={(e) =>
+                              onHandlePointerDown(e, gate.id, side)
+                            }
+                            onPointerUp={(e) =>
+                              onHandlePointerUp(e, gate.id, side)
+                            }
+                            onPointerEnter={() =>
+                              dragging && setHoverTarget({ fogGateId: gate.id, side })
+                            }
+                            onPointerLeave={() =>
+                              dragging && setHoverTarget(null)
+                            }
+                            title={`${side === "front" ? "Front" : "Back"} (drag to connect, ⌘/Ctrl+click to delete)`}
+                            aria-label={`${gate.name ?? gate.id} ${side}`}
+                          />
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
