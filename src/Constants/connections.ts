@@ -2,6 +2,7 @@ import type { Connection } from "./schema";
 
 /**
  * Connections between nodes (doors, one-ways, paths). Fog gate traversal is via run.fogGateWarps.
+ * Reference: Lordran connection map in REFERENCES.md (https://i.imgur.com/TeyUpcd.png).
  */
 export const CONNECTIONS: Connection[] = [
   {

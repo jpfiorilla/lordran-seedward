@@ -28,6 +28,10 @@ Each boss has an **arena** (a node with `kind: 'arena'` and `bossId`). That aren
 - **Static connections** (`door`, `one_way`, `always`) – door when `keyId` is in `run.acquiredKeys`; shortcut when `shortcutId` is in `run.shortcutsUnlocked`; one_way/always when you can reach `fromNodeId`.
 - **Fog gates** – traversable when the gate has no `bossId` or that boss is in `run.bossesDefeated`; destination comes from `run.fogGateWarps`, not from the static connection graph.
 
+## Reference map
+
+A map of Lordran and how it’s all connected is kept in [REFERENCES.md](./REFERENCES.md). Use it when adding or editing nodes, connections, and areas.
+
 ## Next steps
 
 - Add base data: **nodes** (at least every boss arena + major regions), **connections** (doors, one-ways, paths), and **fog gates** (per area, with frontNodeId/backNodeId).

@@ -7,9 +7,11 @@ function sideRefKey(ref) {
   return `${ref.fogGateId}:${ref.side}`;
 }
 
-/** High-contrast cable palette for dark background (crafty / Reason-style). */
+/** Red is reserved for connections in progress (unresolved); resolved connections never use it. */
+const CONNECTION_IN_PROGRESS_COLOR = "#ef4444";
+
+/** High-contrast cable palette for dark background (crafty / Reason-style). No red—reserved for in-progress. */
 const CONNECTION_PALETTE = [
-  "#f87171",
   "#4ade80",
   "#a78bfa",
   "#fb923c",
@@ -21,7 +23,6 @@ const CONNECTION_PALETTE = [
   "#c084fc",
   "#34d399",
   "#06b6d4",
-  "#fb7185",
   "#fbbf24",
   "#38bdf8",
 ];
@@ -100,10 +101,7 @@ export default function FogGateCanvas() {
     [warps],
   );
 
-  const nextColorIndex =
-    1 + Math.max(-1, ...warps.map((w) => w.colorIndex ?? -1));
-  const potentialConnectionColor =
-    CONNECTION_PALETTE[nextColorIndex % CONNECTION_PALETTE.length];
+  const potentialConnectionColor = CONNECTION_IN_PROGRESS_COLOR;
 
   const measureHandles = useCallback(() => {
     const container = containerRef.current;

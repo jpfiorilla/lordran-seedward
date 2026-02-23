@@ -139,13 +139,6 @@
   margin-top: 0.75rem;
 }
 
-.content-subheading {
-  font-family: "MedievalSharp", "IM Fell English", serif;
-  margin: 0 0 0.35rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #a1a1aa;
-}
 
 .content-section:first-child .content-heading {
   margin-top: 0;
@@ -156,6 +149,32 @@
   margin: 0 0 0.25rem;
   font-size: 1.25rem;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.content-heading-icon {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #a1a1aa;
+}
+
+.content-subheading {
+  font-family: "MedievalSharp", "IM Fell English", serif;
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #a1a1aa;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.content-subheading .content-heading-icon {
+  width: 1.1rem;
+  height: 1.1rem;
 }
 
 .area-block {
@@ -415,6 +434,83 @@
   color: #71717a;
   font-family:
     ui-monospace, "SF Mono", Menlo, Monaco, "Cascadia Mono", monospace;
+}
+
+.keys-heading-wrap {
+  position: relative;
+  display: inline-block;
+  width: max-content;
+}
+
+.keys-heading-wrap .content-subheading {
+  margin-bottom: 0.35rem;
+}
+
+.keys-tooltip {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  margin-top: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  max-width: 22rem;
+  font-size: 0.85rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: #e4e4e7;
+  background: #27272a;
+  border: 1px solid #3f3f46;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.keys-heading-wrap:hover .keys-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.key-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.key-item {
+  flex: 0 0 auto;
+}
+
+.key-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  padding: 0.4rem 0.6rem;
+  background: #18181b;
+  border: 1px solid #27272a;
+  border-radius: 6px;
+}
+
+.key-checkbox:hover {
+  border-color: #3f3f46;
+}
+
+.key-checkbox input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #3b82f6;
+  flex-shrink: 0;
+}
+
+.key-name {
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 .shortcut-list {

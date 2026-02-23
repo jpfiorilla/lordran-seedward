@@ -1,7 +1,7 @@
 /* Wider layout (1374px content): scale up type so proportions stay balanced */
 @media (min-width: 1200px) {
   html {
-    font-size: 20px;
+    font-size: 24px;
   }
 }
 
@@ -13,6 +13,6 @@ body {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family:
+    source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }

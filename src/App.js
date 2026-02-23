@@ -6,6 +6,7 @@ import { DARK_SOULS_1_AREAS } from "./Constants/areas";
 import { DARK_SOULS_1_BOSSES } from "./Constants/bosses";
 import { DARK_SOULS_1_BONFIRES } from "./Constants/bonfires";
 import { BELLS_OF_AWAKENING } from "./Constants/bellsOfAwakening";
+import { TRACKABLE_KEYS } from "./Constants/keys";
 import { NODES, START_NODE_IDS } from "./Constants/nodes";
 import { CONNECTIONS } from "./Constants/connections";
 import {
@@ -20,6 +21,7 @@ import {
   setBellRung,
   setBossDefeated,
   setShortcutUnlocked,
+  setKeyAcquired,
   clearRun,
 } from "./redux";
 import {
@@ -28,6 +30,17 @@ import {
   SHARE_PARAM,
 } from "./Utils/runShare";
 import FogGateCanvas from "./FogGateCanvas";
+import {
+  KeyIcon,
+  FogGateIcon,
+  ProgressIcon,
+  BellIcon,
+  ShortcutIcon,
+  FirelinkIcon,
+  NodesIcon,
+  MapIcon,
+  CodeIcon,
+} from "./Icons";
 
 function SchemaBlock({ schema }) {
   return (
@@ -54,18 +67,62 @@ function HomePage() {
   return (
     <main className="App-main">
       <section className="content-section content-section--canvas">
-        <h2 className="content-heading">Fog gate warps</h2>
+        <h2 className="content-heading">
+          <FogGateIcon className="content-heading-icon" />
+          Fog gate warps
+        </h2>
         <p className="map-hint">
           Drag from one gate handle (front or back) to another to set the
           randomizer connection. White = front, lavender = back. ⌘/Ctrl+click a
           handle to delete its connection.
         </p>
         <FogGateCanvas />
+        {run && (
+          <section className="content-subsection content-subsection--keys">
+            <div className="keys-heading-wrap">
+              <h3 className="content-subheading">
+                <KeyIcon className="content-heading-icon" />
+                Keys
+              </h3>
+              <span className="keys-tooltip" role="tooltip">
+                We don't track keys that the Master Key can open—just pick the
+                Master Key as your starting gift.
+              </span>
+            </div>
+            <ul className="key-list">
+              {TRACKABLE_KEYS.map((keyDef) => (
+                <li key={keyDef.id} className="key-item">
+                  <label className="key-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={run.acquiredKeys.includes(keyDef.id)}
+                      onChange={(e) =>
+                        dispatch(
+                          setKeyAcquired({
+                            keyId: keyDef.id,
+                            acquired: e.target.checked,
+                          }),
+                        )
+                      }
+                    />
+                    <span className="key-name">{keyDef.name}</span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
       </section>
       <section className="content-section content-section--run-progress">
-        <h2 className="content-heading">Current run progress</h2>
+        <h2 className="content-heading">
+          <ProgressIcon className="content-heading-icon" />
+          Current run progress
+        </h2>
         <section className="content-subsection">
-          <h3 className="content-subheading">Bells of Awakening</h3>
+          <h3 className="content-subheading">
+            <BellIcon className="content-heading-icon" />
+            Bells of Awakening
+          </h3>
           {!run && (
             <p className="run-prompt">
               <button
@@ -105,7 +162,10 @@ function HomePage() {
         </section>
         {run && (
           <section className="content-subsection">
-            <h3 className="content-subheading">Shortcuts</h3>
+            <h3 className="content-subheading">
+              <ShortcutIcon className="content-heading-icon" />
+              Shortcuts
+            </h3>
             <ul className="shortcut-list">
               <li className="shortcut-item">
                 <label className="shortcut-checkbox">
@@ -129,7 +189,10 @@ function HomePage() {
         )}
         {run && (
           <section className="content-subsection">
-            <h3 className="content-subheading">From Firelink Shrine</h3>
+            <h3 className="content-subheading">
+              <FirelinkIcon className="content-heading-icon" />
+              From Firelink Shrine
+            </h3>
             <p className="map-hint">
               Connections you can take from the start node. Availability
               depends on run state.
@@ -162,7 +225,10 @@ function HomePage() {
         )}
         {run && (
           <section className="content-subsection">
-            <h3 className="content-subheading">Reachable nodes</h3>
+            <h3 className="content-subheading">
+              <NodesIcon className="content-heading-icon" />
+              Reachable nodes
+            </h3>
             <p className="map-hint">
               All nodes you can reach from the start with current run state.
             </p>
@@ -188,7 +254,10 @@ function HomePage() {
       </section>
 
       <section className="content-section">
-        <h2 className="content-heading">Areas</h2>
+        <h2 className="content-heading">
+          <MapIcon className="content-heading-icon" />
+          Areas
+        </h2>
         {DARK_SOULS_1_AREAS.map((area) => {
           const bonfiresInArea = DARK_SOULS_1_BONFIRES.filter(
             (b) => b.areaId === area.id,
@@ -278,7 +347,10 @@ function DebugPage() {
       ))}
       {run && (
         <section className="content-section">
-          <h2 className="content-heading">Current run state (JSON)</h2>
+          <h2 className="content-heading">
+            <CodeIcon className="content-heading-icon" />
+            Current run state (JSON)
+          </h2>
           <pre className="schema-def">
             <code>{JSON.stringify(run, null, 2)}</code>
           </pre>
