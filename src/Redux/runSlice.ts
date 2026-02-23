@@ -150,10 +150,13 @@ const runSlice = createSlice({
       action: PayloadAction<FogGateSideRef>,
     ) {
       if (!state.run) return;
-      const from = action.payload;
+      const ref = action.payload;
       state.run.fogGateWarps = state.run.fogGateWarps.filter(
         (w) =>
-          !(w.from.fogGateId === from.fogGateId && w.from.side === from.side),
+          !(
+            (w.from.fogGateId === ref.fogGateId && w.from.side === ref.side) ||
+            (w.to.fogGateId === ref.fogGateId && w.to.side === ref.side)
+          ),
       );
       saveToStorage(state.run);
     },

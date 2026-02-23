@@ -9,9 +9,21 @@ function sideRefKey(ref) {
 
 /** Crafty / audio-studio cable palette (Reason-style soft synth wires). */
 const CONNECTION_PALETTE = [
-  "#e07a5f", "#81b29a", "#3d405b", "#f4a261", "#2a9d8f",
-  "#e9c46a", "#264653", "#e76f51", "#457b9d", "#9b5de5",
-  "#00b4d8", "#06d6a0", "#ef476f", "#ffd166", "#118ab2",
+  "#e07a5f",
+  "#81b29a",
+  "#3d405b",
+  "#f4a261",
+  "#2a9d8f",
+  "#e9c46a",
+  "#264653",
+  "#e76f51",
+  "#457b9d",
+  "#9b5de5",
+  "#00b4d8",
+  "#06d6a0",
+  "#ef476f",
+  "#ffd166",
+  "#118ab2",
 ];
 
 /** Quadratic curve control point so the line bends and reads clearly. */
@@ -34,6 +46,7 @@ function getCurveControlPoint(x1, y1, x2, y2) {
 export default function FogGateCanvas() {
   const dispatch = useAppDispatch();
   const run = useAppSelector((s) => s.run.run);
+  const wrapRef = useRef(null);
   const containerRef = useRef(null);
   const handleRefs = useRef(new Map());
   const [handlePositions, setHandlePositions] = useState(new Map());
@@ -43,19 +56,28 @@ export default function FogGateCanvas() {
   const [hoverTarget, setHoverTarget] = useState(null);
 
   const layouts = getRegionLayouts();
-  const warps = useMemo(
-    () => run?.fogGateWarps ?? [],
-    [run?.fogGateWarps]
-  );
+  const warps = useMemo(() => run?.fogGateWarps ?? [], [run?.fogGateWarps]);
 
   const getConnectionColorForHandle = useCallback(
     (fogGateId, side) => {
       const idx = warps.findIndex(
-        (w) => w.from.fogGateId === fogGateId && w.from.side === side
+        (w) => w.from.fogGateId === fogGateId && w.from.side === side,
       );
-      return idx >= 0 ? CONNECTION_PALETTE[idx % CONNECTION_PALETTE.length] : null;
+      return idx >= 0
+        ? CONNECTION_PALETTE[idx % CONNECTION_PALETTE.length]
+        : null;
     },
-    [warps]
+    [warps],
+  );
+
+  const hasHandleConnection = useCallback(
+    (fogGateId, side) =>
+      warps.some(
+        (w) =>
+          (w.from.fogGateId === fogGateId && w.from.side === side) ||
+          (w.to.fogGateId === fogGateId && w.to.side === side),
+      ),
+    [warps],
   );
 
   const potentialConnectionColor =
@@ -103,6 +125,34 @@ export default function FogGateCanvas() {
     else handleRefs.current.delete(key);
   }, []);
 
+  const completeConnectionTo = useCallback(
+    (targetFogGateId, targetSide) => {
+      if (!dragging || !run) return;
+      const from = {
+        fogGateId: dragging.fogGateId,
+        side: dragging.side,
+      };
+      const to = { fogGateId: targetFogGateId, side: targetSide };
+      const targetAlreadyHasConnection = hasHandleConnection(
+        targetFogGateId,
+        targetSide,
+      );
+      if (targetAlreadyHasConnection) {
+        setDragging(null);
+        setDragPos(null);
+        setHoverTarget(null);
+        return;
+      }
+      if (from.fogGateId !== to.fogGateId || from.side !== to.side) {
+        dispatch(setFogGateWarp({ from, to }));
+      }
+      setDragging(null);
+      setDragPos(null);
+      setHoverTarget(null);
+    },
+    [dragging, run, dispatch, hasHandleConnection],
+  );
+
   const onHandlePointerDown = useCallback(
     (e, fogGateId, side) => {
       e.preventDefault();
@@ -111,29 +161,46 @@ export default function FogGateCanvas() {
         dispatch(removeFogGateWarp({ fogGateId, side }));
         return;
       }
+      if (
+        dragging &&
+        dragging.fogGateId === fogGateId &&
+        dragging.side === side
+      ) {
+        setDragging(null);
+        setDragPos(null);
+        setHoverTarget(null);
+        return;
+      }
+      if (
+        dragging &&
+        (dragging.fogGateId !== fogGateId || dragging.side !== side)
+      ) {
+        completeConnectionTo(fogGateId, side);
+        return;
+      }
       setDragging({ fogGateId, side });
+      wrapRef.current?.setPointerCapture(e.pointerId);
       const container = containerRef.current;
       if (container) {
         const rect = container.getBoundingClientRect();
         setDragPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
       }
     },
-    [run, dispatch]
+    [run, dispatch, dragging, completeConnectionTo],
   );
 
   const onHandlePointerUp = useCallback(
     (e, targetFogGateId, targetSide) => {
-      if (!dragging || !run) return;
-      const from = { fogGateId: dragging.fogGateId, side: dragging.side };
-      const to = { fogGateId: targetFogGateId, side: targetSide };
-      if (from.fogGateId !== to.fogGateId || from.side !== to.side) {
-        dispatch(setFogGateWarp({ from, to }));
+      if (!dragging) return;
+      if (
+        dragging.fogGateId === targetFogGateId &&
+        dragging.side === targetSide
+      ) {
+        return;
       }
-      setDragging(null);
-      setDragPos(null);
-      setHoverTarget(null);
+      completeConnectionTo(targetFogGateId, targetSide);
     },
-    [dragging, run, dispatch]
+    [dragging, completeConnectionTo],
   );
 
   const onPointerMove = useCallback(
@@ -143,16 +210,32 @@ export default function FogGateCanvas() {
         setDragPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
       }
     },
-    [dragging]
+    [dragging],
   );
 
-  const onPointerUpGlobal = useCallback(() => {
-    if (dragging) {
+  const onPointerUpGlobal = useCallback(
+    (e) => {
+      if (!dragging) return;
+      const el = e.target && document.elementFromPoint(e.clientX, e.clientY);
+      const handle = el?.closest?.(".fog-canvas-handle");
+      if (handle?.dataset?.fogGateId != null && handle?.dataset?.side != null) {
+        const targetFogGateId = handle.dataset.fogGateId;
+        const targetSide = handle.dataset.side;
+        if (
+          dragging.fogGateId === targetFogGateId &&
+          dragging.side === targetSide
+        ) {
+          return;
+        }
+        completeConnectionTo(targetFogGateId, targetSide);
+        return;
+      }
       setDragging(null);
       setDragPos(null);
       setHoverTarget(null);
-    }
-  }, [dragging]);
+    },
+    [dragging, completeConnectionTo],
+  );
 
   if (!run) {
     return (
@@ -173,6 +256,7 @@ export default function FogGateCanvas() {
 
   return (
     <div
+      ref={wrapRef}
       className="fog-canvas-wrap"
       onPointerMove={onPointerMove}
       onPointerLeave={onPointerUpGlobal}
@@ -194,8 +278,10 @@ export default function FogGateCanvas() {
               const toPos = handlePositions.get(sideRefKey(warp.to));
               if (!fromPos || !toPos) return null;
               const { cx, cy } = getCurveControlPoint(
-                fromPos.x, fromPos.y,
-                toPos.x, toPos.y
+                fromPos.x,
+                fromPos.y,
+                toPos.x,
+                toPos.y,
               );
               const strokeColor =
                 CONNECTION_PALETTE[i % CONNECTION_PALETTE.length];
@@ -210,26 +296,33 @@ export default function FogGateCanvas() {
                 />
               );
             })}
-            {dragging && dragPos && (() => {
-              const fromPos = handlePositions.get(
-                sideRefKey({ fogGateId: dragging.fogGateId, side: dragging.side })
-              );
-              if (!fromPos) return null;
-              const { cx, cy } = getCurveControlPoint(
-                fromPos.x, fromPos.y,
-                dragPos.x, dragPos.y
-              );
-              return (
-                <path
-                  d={`M ${fromPos.x} ${fromPos.y} Q ${cx} ${cy} ${dragPos.x} ${dragPos.y}`}
-                  className="fog-canvas-warp-line fog-canvas-warp-line--preview"
-                  fill="none"
-                  stroke={potentialConnectionColor}
-                  strokeWidth={2.5}
-                  strokeDasharray="5 4"
-                />
-              );
-            })()}
+            {dragging &&
+              dragPos &&
+              (() => {
+                const fromPos = handlePositions.get(
+                  sideRefKey({
+                    fogGateId: dragging.fogGateId,
+                    side: dragging.side,
+                  }),
+                );
+                if (!fromPos) return null;
+                const { cx, cy } = getCurveControlPoint(
+                  fromPos.x,
+                  fromPos.y,
+                  dragPos.x,
+                  dragPos.y,
+                );
+                return (
+                  <path
+                    d={`M ${fromPos.x} ${fromPos.y} Q ${cx} ${cy} ${dragPos.x} ${dragPos.y}`}
+                    className="fog-canvas-warp-line fog-canvas-warp-line--preview"
+                    fill="none"
+                    stroke={potentialConnectionColor}
+                    strokeWidth={2.5}
+                    strokeDasharray="5 4"
+                  />
+                );
+              })()}
           </g>
         </svg>
 
@@ -250,7 +343,7 @@ export default function FogGateCanvas() {
                       {gate.name ?? gate.id}
                     </span>
                     <div className="fog-canvas-handles">
-                      {(["front", "back"]).map((side) => {
+                      {["front", "back"].map((side) => {
                         const isHoverTarget =
                           dragging &&
                           hoverTarget?.fogGateId === gate.id &&
@@ -261,25 +354,36 @@ export default function FogGateCanvas() {
                           );
                         const connectionColor = getConnectionColorForHandle(
                           gate.id,
-                          side
+                          side,
                         );
-                        const displayColor = isHoverTarget
-                          ? potentialConnectionColor
-                          : connectionColor ??
-                            (side === "front"
-                              ? "rgba(255,255,255,0.9)"
-                              : "rgba(200,200,255,0.9)");
+                        const isDropBlocked =
+                          isHoverTarget && hasHandleConnection(gate.id, side);
+                        const displayColor =
+                          isHoverTarget && !isDropBlocked
+                            ? potentialConnectionColor
+                            : (connectionColor ??
+                              (side === "front"
+                                ? "rgba(255,255,255,0.9)"
+                                : "rgba(200,200,255,0.9)"));
                         return (
                           <button
                             key={side}
                             type="button"
+                            data-fog-gate-id={gate.id}
+                            data-side={side}
                             className={`fog-canvas-handle fog-canvas-handle--${side}${
-                              connectionColor ? " fog-canvas-handle--connected" : ""
-                            }${isHoverTarget ? " fog-canvas-handle--hover-target" : ""}`}
+                              connectionColor
+                                ? " fog-canvas-handle--connected"
+                                : ""
+                            }${isHoverTarget && !isDropBlocked ? " fog-canvas-handle--hover-target" : ""}${
+                              isDropBlocked
+                                ? " fog-canvas-handle--drop-blocked"
+                                : ""
+                            }`}
                             ref={(el) =>
                               setHandleRef(
                                 sideRefKey({ fogGateId: gate.id, side }),
-                                el
+                                el,
                               )
                             }
                             style={{ "--handle-color": displayColor }}
@@ -290,12 +394,13 @@ export default function FogGateCanvas() {
                               onHandlePointerUp(e, gate.id, side)
                             }
                             onPointerEnter={() =>
-                              dragging && setHoverTarget({ fogGateId: gate.id, side })
+                              dragging &&
+                              setHoverTarget({ fogGateId: gate.id, side })
                             }
                             onPointerLeave={() =>
                               dragging && setHoverTarget(null)
                             }
-                            title={`${side === "front" ? "Front" : "Back"} (drag to connect, ⌘/Ctrl+click to delete)`}
+                            title={`${side === "front" ? "Front" : "Back"} (click or drag to connect, ⌘/Ctrl+click to delete)`}
                             aria-label={`${gate.name ?? gate.id} ${side}`}
                           />
                         );
