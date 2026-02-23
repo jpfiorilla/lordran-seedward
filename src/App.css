@@ -60,6 +60,9 @@
 }
 
 .App-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
   max-width: 1374px;
   margin: 0 auto;
   padding: 1rem 1.5rem;
@@ -67,14 +70,14 @@
 
 .schema-intro {
   font-family: "IM Fell English", "Times New Roman", serif;
-  margin: 0 0 1.5rem;
+  margin: 0;
   font-size: 0.95rem;
   color: #a1a1aa;
   line-height: 1.5;
 }
 
 .schema-block {
-  margin-bottom: 2rem;
+  margin: 0;
 }
 
 .schema-name {
@@ -118,63 +121,42 @@
 }
 
 .content-section {
-  margin-top: 2.5rem;
-  padding-top: 2rem;
-  border-top: 1px solid #27272a;
-}
-
-.content-section:first-child {
-  margin-top: 0;
-  padding-top: 0;
-  border-top: none;
-}
-
-.content-section--run-progress {
-  margin-top: 0;
-  padding-top: 0;
-  border-top: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .content-subsection {
-  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-
-.content-section:first-child .content-heading {
-  margin-top: 0;
-}
-
-.content-heading {
+.content-heading,
+.content-subheading {
   font-family: "MedievalSharp", "IM Fell English", serif;
-  margin: 0 0 0.25rem;
-  font-size: 1.25rem;
   font-weight: 600;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  margin: 0 0 0.35rem;
+}
+
+.content-heading {
+  font-size: 1.15rem;
+  color: #e4e4e7;
+}
+
+.content-subheading {
+  font-size: 1rem;
+  color: #a1a1aa;
 }
 
 .content-heading-icon {
   flex-shrink: 0;
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.15rem;
+  height: 1.15rem;
   color: #a1a1aa;
-}
-
-.content-subheading {
-  font-family: "MedievalSharp", "IM Fell English", serif;
-  margin: 0 0 0.35rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #a1a1aa;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.content-subheading .content-heading-icon {
-  width: 1.1rem;
-  height: 1.1rem;
 }
 
 .area-block {
@@ -442,16 +424,13 @@
   width: max-content;
 }
 
-.keys-heading-wrap .content-subheading {
-  margin-bottom: 0.35rem;
-}
-
 .keys-tooltip {
   position: absolute;
   left: 0;
   top: 100%;
   margin-top: 0.35rem;
   padding: 0.5rem 0.75rem;
+  min-width: 320px;
   max-width: 22rem;
   font-size: 0.85rem;
   font-weight: 400;
@@ -469,6 +448,40 @@
 }
 
 .keys-heading-wrap:hover .keys-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.key-item-wrap {
+  position: relative;
+  display: inline-block;
+  width: max-content;
+}
+
+.key-unlocks-tooltip {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  margin-top: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  min-width: 200px;
+  max-width: 20rem;
+  font-size: 0.85rem;
+  font-weight: 400;
+  line-height: 1.4;
+  color: #e4e4e7;
+  background: #27272a;
+  border: 1px solid #3f3f46;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.key-item-wrap:hover .key-unlocks-tooltip {
   opacity: 1;
   visibility: visible;
 }
@@ -652,7 +665,7 @@
   }
 }
 
-@media (min-width: 900px) {
+@media (min-width: 700px) {
   .fog-canvas-regions {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -769,6 +782,14 @@
   cursor: not-allowed;
 }
 
+.fog-canvas-handle--full {
+  cursor: default;
+}
+
+.fog-canvas-handle--full:active {
+  cursor: default;
+}
+
 .fog-canvas-empty {
   font-family: "IM Fell English", "Times New Roman", serif;
   padding: 3rem 1.5rem;
@@ -778,6 +799,23 @@
 
 .fog-canvas-empty .btn {
   margin-top: 0.75rem;
+}
+
+.fog-canvas-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  max-width: min(90vw, 28rem);
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #e4e4e7;
+  background: #27272a;
+  border: 1px solid #3f3f46;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
 .fog-canvas-warp-line {

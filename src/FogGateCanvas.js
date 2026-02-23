@@ -1,4 +1,11 @@
-import { useRef, useState, useCallback, useLayoutEffect, useMemo } from "react";
+import {
+  useRef,
+  useState,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+} from "react";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import { setFogGateWarp, removeFogGateWarp, startNewRun } from "./redux";
 import { getRegionLayouts } from "./Constants/canvasLayout";
@@ -57,6 +64,17 @@ export default function FogGateCanvas() {
   const [hoverTarget, setHoverTarget] = useState(null);
   const [hoveredWarpIndex, setHoveredWarpIndex] = useState(null);
   const [modifierHeld, setModifierHeld] = useState(false);
+  const [toastMessage, setToastMessage] = useState(null);
+  const toastTimeoutRef = useRef(null);
+
+  const showToast = useCallback((message) => {
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    setToastMessage(message);
+    toastTimeoutRef.current = setTimeout(() => {
+      setToastMessage(null);
+      toastTimeoutRef.current = null;
+    }, 4000);
+  }, []);
 
   useLayoutEffect(() => {
     const onKeyDown = (e) => {
@@ -70,6 +88,12 @@ export default function FogGateCanvas() {
     return () => {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     };
   }, []);
 
@@ -185,6 +209,12 @@ export default function FogGateCanvas() {
         dispatch(removeFogGateWarp({ fogGateId, side }));
         return;
       }
+      if (getConnectionCountForHandle(fogGateId, side) >= 2) {
+        showToast(
+          "That fog gate already has two connections. Delete a connection with command/ctrl-click to reconnect the gate.",
+        );
+        return;
+      }
       if (
         dragging &&
         dragging.fogGateId === fogGateId &&
@@ -210,7 +240,14 @@ export default function FogGateCanvas() {
         setDragPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
       }
     },
-    [run, dispatch, dragging, completeConnectionTo],
+    [
+      run,
+      dispatch,
+      dragging,
+      completeConnectionTo,
+      getConnectionCountForHandle,
+      showToast,
+    ],
   );
 
   const onHandlePointerUp = useCallback(
@@ -320,7 +357,10 @@ export default function FogGateCanvas() {
                   fill="none"
                   stroke={isHoveredWithModifier ? "#dc2626" : strokeColor}
                   strokeWidth={isHoveredWithModifier ? 4 : 2.5}
-                  style={{ pointerEvents: "stroke", cursor: modifierHeld ? "pointer" : "default" }}
+                  style={{
+                    pointerEvents: "stroke",
+                    cursor: modifierHeld ? "pointer" : "default",
+                  }}
                   onPointerEnter={() => setHoveredWarpIndex(i)}
                   onPointerLeave={() => setHoveredWarpIndex(null)}
                   onClick={(e) => {
@@ -329,7 +369,9 @@ export default function FogGateCanvas() {
                       dispatch(removeFogGateWarp(warp.from));
                     }
                   }}
-                  title={modifierHeld ? "⌘/Ctrl+click to delete connection" : null}
+                  title={
+                    modifierHeld ? "⌘/Ctrl+click to delete connection" : null
+                  }
                 />
               );
             })}
@@ -378,6 +420,7 @@ export default function FogGateCanvas() {
                   <div key={gate.id} className="fog-canvas-gate">
                     <span className="fog-canvas-gate-name">
                       {gate.name ?? gate.id}
+                      {gate.bossId ? " 💀" : null}
                     </span>
                     <div className="fog-canvas-handles">
                       {["front", "back"].map((side) => {
@@ -406,9 +449,12 @@ export default function FogGateCanvas() {
                           gate.id,
                           side,
                         );
-                        const isDropBlocked =
-                          isHoverTarget &&
-                          getConnectionCountForHandle(gate.id, side) >= 2;
+                        const connectionCount = getConnectionCountForHandle(
+                          gate.id,
+                          side,
+                        );
+                        const isFull = connectionCount >= 2;
+                        const isDropBlocked = isHoverTarget && isFull;
                         const displayColor =
                           isHoverTarget && !isDropBlocked
                             ? potentialConnectionColor
@@ -427,8 +473,10 @@ export default function FogGateCanvas() {
                                 ? " fog-canvas-handle--connected"
                                 : ""
                             }${isSource ? " fog-canvas-handle--source" : ""}${
-                              isHoverTarget && !isDropBlocked ? " fog-canvas-handle--hover-target" : ""
-                            }${isDropBlocked ? " fog-canvas-handle--drop-blocked" : ""}`}
+                              isHoverTarget && !isDropBlocked
+                                ? " fog-canvas-handle--hover-target"
+                                : ""
+                            }${isDropBlocked ? " fog-canvas-handle--drop-blocked" : ""}${isFull ? " fog-canvas-handle--full" : ""}`}
                             ref={(el) =>
                               setHandleRef(
                                 sideRefKey({ fogGateId: gate.id, side }),
@@ -449,7 +497,11 @@ export default function FogGateCanvas() {
                             onPointerLeave={() =>
                               dragging && setHoverTarget(null)
                             }
-                            title={`${side === "front" ? "Front" : "Back"} (click or drag to connect, ⌘/Ctrl+click to delete)`}
+                            title={
+                              isFull
+                                ? `${side === "front" ? "Front" : "Back"} (⌘/Ctrl+click to delete connections)`
+                                : `${side === "front" ? "Front" : "Back"} (click or drag to connect, ⌘/Ctrl+click to delete)`
+                            }
                             aria-label={`${gate.name ?? gate.id} ${side}`}
                           />
                         );
@@ -462,6 +514,11 @@ export default function FogGateCanvas() {
           ))}
         </div>
       </div>
+      {toastMessage && (
+        <div className="fog-canvas-toast" role="status" aria-live="polite">
+          {toastMessage}
+        </div>
+      )}
     </div>
   );
 }

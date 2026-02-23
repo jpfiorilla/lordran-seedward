@@ -2,24 +2,13 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import "./App.css";
 import { Routes, Route, Link, useSearchParams } from "react-router-dom";
 import { SCHEMA_DEFINITIONS } from "./Constants/schema";
-import { DARK_SOULS_1_AREAS } from "./Constants/areas";
-import { DARK_SOULS_1_BOSSES } from "./Constants/bosses";
-import { DARK_SOULS_1_BONFIRES } from "./Constants/bonfires";
 import { BELLS_OF_AWAKENING } from "./Constants/bellsOfAwakening";
 import { TRACKABLE_KEYS } from "./Constants/keys";
-import { NODES, START_NODE_IDS } from "./Constants/nodes";
-import { CONNECTIONS } from "./Constants/connections";
-import {
-  isConnectionAvailable,
-  getConnectionsFrom,
-  getReachableNodeIds,
-} from "./Utils/reachability";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import {
   startNewRun,
   setRun,
   setBellRung,
-  setBossDefeated,
   setShortcutUnlocked,
   setKeyAcquired,
   clearRun,
@@ -33,12 +22,8 @@ import FogGateCanvas from "./FogGateCanvas";
 import {
   KeyIcon,
   FogGateIcon,
-  ProgressIcon,
   BellIcon,
   ShortcutIcon,
-  FirelinkIcon,
-  NodesIcon,
-  MapIcon,
   CodeIcon,
 } from "./Icons";
 
@@ -80,10 +65,10 @@ function HomePage() {
         {run && (
           <section className="content-subsection content-subsection--keys">
             <div className="keys-heading-wrap">
-              <h3 className="content-subheading">
+              <h2 className="content-heading">
                 <KeyIcon className="content-heading-icon" />
                 Keys
-              </h3>
+              </h2>
               <span className="keys-tooltip" role="tooltip">
                 We don't track keys that the Master Key can open—just pick the
                 Master Key as your starting gift.
@@ -92,37 +77,40 @@ function HomePage() {
             <ul className="key-list">
               {TRACKABLE_KEYS.map((keyDef) => (
                 <li key={keyDef.id} className="key-item">
-                  <label className="key-checkbox">
-                    <input
-                      type="checkbox"
-                      checked={run.acquiredKeys.includes(keyDef.id)}
-                      onChange={(e) =>
-                        dispatch(
-                          setKeyAcquired({
-                            keyId: keyDef.id,
-                            acquired: e.target.checked,
-                          }),
-                        )
-                      }
-                    />
-                    <span className="key-name">{keyDef.name}</span>
-                  </label>
+                  <span className="key-item-wrap">
+                    <label className="key-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={run.acquiredKeys.includes(keyDef.id)}
+                        onChange={(e) =>
+                          dispatch(
+                            setKeyAcquired({
+                              keyId: keyDef.id,
+                              acquired: e.target.checked,
+                            }),
+                          )
+                        }
+                      />
+                      <span className="key-name">{keyDef.name}</span>
+                    </label>
+                    {keyDef.unlocks && (
+                      <span className="key-unlocks-tooltip" role="tooltip">
+                        {keyDef.unlocks}
+                      </span>
+                    )}
+                  </span>
                 </li>
               ))}
             </ul>
           </section>
         )}
       </section>
-      <section className="content-section content-section--run-progress">
-        <h2 className="content-heading">
-          <ProgressIcon className="content-heading-icon" />
-          Current run progress
-        </h2>
+      <section className="content-section">
         <section className="content-subsection">
-          <h3 className="content-subheading">
+          <h2 className="content-heading">
             <BellIcon className="content-heading-icon" />
             Bells of Awakening
-          </h3>
+          </h2>
           {!run && (
             <p className="run-prompt">
               <button
@@ -162,10 +150,10 @@ function HomePage() {
         </section>
         {run && (
           <section className="content-subsection">
-            <h3 className="content-subheading">
+            <h2 className="content-heading">
               <ShortcutIcon className="content-heading-icon" />
               Shortcuts
-            </h3>
+            </h2>
             <ul className="shortcut-list">
               <li className="shortcut-item">
                 <label className="shortcut-checkbox">
@@ -187,147 +175,6 @@ function HomePage() {
             </ul>
           </section>
         )}
-        {run && (
-          <section className="content-subsection">
-            <h3 className="content-subheading">
-              <FirelinkIcon className="content-heading-icon" />
-              From Firelink Shrine
-            </h3>
-            <p className="map-hint">
-              Connections you can take from the start node. Availability
-              depends on run state.
-            </p>
-            <ul className="connection-list">
-              {getConnectionsFrom(CONNECTIONS, "firelink-shrine").map((conn) => {
-                const available = isConnectionAvailable(conn, run);
-                const toNode = NODES.find((n) => n.id === conn.toNodeId);
-                const toName = toNode?.name ?? conn.toNodeId;
-                return (
-                  <li
-                    key={conn.id}
-                    className={`connection-item ${available ? "connection-item--available" : "connection-item--locked"}`}
-                  >
-                    <span className="connection-name">
-                      {conn.name ?? conn.id}
-                    </span>
-                    <span className="connection-arrow">→</span>
-                    <span className="connection-target">{toName}</span>
-                    {conn.shortcutId && (
-                      <span className="connection-gate">
-                        {available ? "✓" : "locked"}
-                      </span>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        )}
-        {run && (
-          <section className="content-subsection">
-            <h3 className="content-subheading">
-              <NodesIcon className="content-heading-icon" />
-              Reachable nodes
-            </h3>
-            <p className="map-hint">
-              All nodes you can reach from the start with current run state.
-            </p>
-            <ul className="node-list">
-              {Array.from(
-                getReachableNodeIds(
-                  CONNECTIONS,
-                  run?.areas?.flatMap((a) => a.fogGates) ?? [],
-                  run,
-                  START_NODE_IDS,
-                ),
-              ).map((nodeId) => {
-                const node = NODES.find((n) => n.id === nodeId);
-                return (
-                  <li key={nodeId} className="node-item">
-                    {node?.name ?? nodeId}
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        )}
-      </section>
-
-      <section className="content-section">
-        <h2 className="content-heading">
-          <MapIcon className="content-heading-icon" />
-          Areas
-        </h2>
-        {DARK_SOULS_1_AREAS.map((area) => {
-          const bonfiresInArea = DARK_SOULS_1_BONFIRES.filter(
-            (b) => b.areaId === area.id,
-          );
-          const bossesInArea = DARK_SOULS_1_BOSSES.filter(
-            (b) => b.areaId === area.id,
-          );
-          if (bonfiresInArea.length === 0 && bossesInArea.length === 0)
-            return null;
-          return (
-            <div key={area.id} className="area-block">
-              <h3 className="area-name">{area.name}</h3>
-              {bonfiresInArea.length > 0 && (
-                <div className="area-subsection">
-                  <span className="area-subsection-label">Bonfires</span>
-                  <ul className="bonfire-list">
-                    {bonfiresInArea.map((bonfire) => (
-                      <li key={bonfire.id} className="bonfire-item">
-                        <span className="bonfire-name-wrap">
-                          <span className="bonfire-name">{bonfire.name}</span>
-                          {bonfire.warpable && (
-                            <span className="bonfire-tag bonfire-tag--warp">
-                              Warp
-                            </span>
-                          )}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {bossesInArea.length > 0 && (
-                <div className="area-subsection">
-                  <span className="area-subsection-label">Bosses</span>
-                  <ul className="boss-list">
-                    {bossesInArea.map((boss) => (
-                      <li key={boss.id} className="boss-item">
-                        {run && (
-                          <label className="boss-checkbox">
-                            <input
-                              type="checkbox"
-                              checked={run.bossesDefeated.includes(boss.id)}
-                              onChange={(e) =>
-                                dispatch(
-                                  setBossDefeated({
-                                    bossId: boss.id,
-                                    defeated: e.target.checked,
-                                  }),
-                                )
-                              }
-                            />
-                            <span className="boss-checkbox-label">Defeated</span>
-                          </label>
-                        )}
-                        <span className="boss-name-wrap">
-                          <span className="boss-name">{boss.name}</span>
-                          {boss.lordSoul && (
-                            <span className="boss-tag boss-tag--lord">
-                              Lord Soul
-                            </span>
-                          )}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          );
-        })}
       </section>
     </main>
   );

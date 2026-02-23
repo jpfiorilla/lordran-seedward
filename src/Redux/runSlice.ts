@@ -138,9 +138,11 @@ const runSlice = createSlice({
         from.side === to.side
       )
         return;
+      const sameConnection = (w: { from: FogGateSideRef; to: FogGateSideRef }) =>
+        (w.from.fogGateId === from.fogGateId && w.from.side === from.side && w.to.fogGateId === to.fogGateId && w.to.side === to.side) ||
+        (w.from.fogGateId === to.fogGateId && w.from.side === to.side && w.to.fogGateId === from.fogGateId && w.to.side === from.side);
       state.run.fogGateWarps = state.run.fogGateWarps.filter(
-        (w) =>
-          !(w.from.fogGateId === from.fogGateId && w.from.side === from.side),
+        (w) => !sameConnection(w),
       );
       const nextColorIndex =
         1 +
