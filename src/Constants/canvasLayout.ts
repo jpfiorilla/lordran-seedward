@@ -41,13 +41,12 @@ areaIdsInOrder.forEach((id, i) => {
   AREA_COLORS[id] = PALETTE[i % PALETTE.length];
 });
 
-/** Region dimensions and grid. */
-export const REGION_WIDTH = 220;
-export const REGION_HEIGHT = 280;
-export const REGION_COLS = 4;
+/** Region dimensions. */
+export const REGION_WIDTH = 200;
+export const REGION_HEIGHT = 260;
 export const REGION_PADDING = 8;
-export const GATE_CARD_WIDTH = 200;
-export const GATE_CARD_HEIGHT = 26;
+export const GATE_CARD_WIDTH = 180;
+export const GATE_CARD_HEIGHT = 24;
 export const GATE_GAP = 4;
 /** Front handle (left) and back handle (right) x in gate-local coords. */
 export const HANDLE_FRONT_X = 8;
@@ -55,7 +54,32 @@ export const HANDLE_BACK_X = GATE_CARD_WIDTH - 8;
 export const HANDLE_Y = GATE_CARD_HEIGHT / 2;
 export const HANDLE_R = 6;
 
-/** Areas that have at least one fog gate, in display order. */
+/** Map-like (x, y) positions per area so connections read clearly. Spacing ~260. */
+const MAP_POSITIONS: Record<string, { x: number; y: number }> = {
+  "northern-undead-asylum": { x: 40, y: 40 },
+  "firelink-shrine": { x: 40, y: 320 },
+  "undead-burg": { x: 320, y: 120 },
+  "undead-parish": { x: 320, y: 320 },
+  "the-depths": { x: 320, y: 520 },
+  "new-londo-ruins": { x: 40, y: 600 },
+  "the-catacombs": { x: 40, y: 800 },
+  "sen-fortress": { x: 600, y: 320 },
+  "blighttown": { x: 320, y: 720 },
+  "great-hollow": { x: 320, y: 920 },
+  "darkroot-garden": { x: 600, y: 120 },
+  "anor-londo": { x: 880, y: 200 },
+  "painted-world": { x: 880, y: 400 },
+  "tomb-of-the-giants": { x: 40, y: 1000 },
+  "the-dukes-archives": { x: 880, y: 560 },
+  "crystal-cave": { x: 880, y: 720 },
+  "demon-ruins": { x: 600, y: 800 },
+  "lost-izalith": { x: 600, y: 960 },
+  "royal-wood": { x: 880, y: 880 },
+  "sanctuary-garden": { x: 880, y: 1040 },
+  "chasm-of-the-abyss": { x: 880, y: 1200 },
+};
+
+/** Areas that have at least one fog gate. */
 export const AREAS_WITH_GATES = areaIdsInOrder.filter((areaId) =>
   FOG_GATES.some((g) => g.areaId === areaId)
 );
@@ -71,7 +95,7 @@ export type RegionLayout = {
   gates: FogGate[];
 };
 
-/** Compute region positions in a grid; gates listed per region. */
+/** Compute region positions from map; gates listed per region. */
 export function getRegionLayouts(): RegionLayout[] {
   const result: RegionLayout[] = [];
   const ordered = AREAS_WITH_GATES.map((areaId) => {
@@ -80,15 +104,14 @@ export function getRegionLayouts(): RegionLayout[] {
     return { areaId, areaName: area?.name ?? areaId, gates };
   }).filter((r) => r.gates.length > 0);
 
-  ordered.forEach(({ areaId, areaName, gates }, i) => {
-    const col = i % REGION_COLS;
-    const row = Math.floor(i / REGION_COLS);
+  ordered.forEach(({ areaId, areaName, gates }) => {
+    const pos = MAP_POSITIONS[areaId] ?? { x: 0, y: 0 };
     result.push({
       areaId,
       areaName,
       color: AREA_COLORS[areaId] ?? "#374151",
-      x: col * (REGION_WIDTH + 16),
-      y: row * (REGION_HEIGHT + 16),
+      x: pos.x,
+      y: pos.y,
       width: REGION_WIDTH,
       height: REGION_HEIGHT,
       gates,
@@ -97,9 +120,28 @@ export function getRegionLayouts(): RegionLayout[] {
   return result;
 }
 
+/** Bounding box of all regions for SVG viewBox. */
+export function getMapBounds(layouts: RegionLayout[]): { x: number; y: number; w: number; h: number } {
+  if (layouts.length === 0) return { x: 0, y: 0, w: 800, h: 600 };
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  layouts.forEach((r) => {
+    minX = Math.min(minX, r.x);
+    minY = Math.min(minY, r.y);
+    maxX = Math.max(maxX, r.x + r.width);
+    maxY = Math.max(maxY, r.y + r.height);
+  });
+  const pad = 60;
+  return {
+    x: minX - pad,
+    y: minY - pad,
+    w: maxX - minX + pad * 2,
+    h: maxY - minY + pad * 2,
+  };
+}
+
 /** Gate position inside a region (top-left of card). Index = gate index in region. */
 export function getGatePositionInRegion(gateIndex: number): { x: number; y: number } {
-  const headerH = 28;
+  const headerH = 26;
   return {
     x: REGION_PADDING,
     y: headerH + gateIndex * (GATE_CARD_HEIGHT + GATE_GAP),

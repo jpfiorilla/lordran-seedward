@@ -4,8 +4,7 @@ import { setFogGateWarp, removeFogGateWarp, startNewRun } from "./redux";
 import {
   getRegionLayouts,
   getGatePositionInRegion,
-  REGION_WIDTH,
-  REGION_HEIGHT,
+  getMapBounds,
   GATE_CARD_WIDTH,
   GATE_CARD_HEIGHT,
   HANDLE_FRONT_X,
@@ -49,6 +48,23 @@ function getHandlePosition(handleMap, region, gateIndex, side) {
     (side === "front" ? HANDLE_FRONT_X : HANDLE_BACK_X);
   const y = region.y + REGION_OFFSET + gatePos.y + HANDLE_Y;
   return { x, y };
+}
+
+/** Quadratic curve control point so the line bends and reads clearly. */
+function getCurveControlPoint(x1, y1, x2, y2) {
+  const midX = (x1 + x2) / 2;
+  const midY = (y1 + y2) / 2;
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const dist = Math.hypot(dx, dy) || 1;
+  const curve = Math.min(40, dist * 0.3);
+  let perpX = (-dy / dist) * curve;
+  let perpY = (dx / dist) * curve;
+  if (dx < 0) {
+    perpX = -perpX;
+    perpY = -perpY;
+  }
+  return { cx: midX + perpX, cy: midY + perpY };
 }
 
 export default function FogGateCanvas() {
@@ -149,11 +165,10 @@ export default function FogGateCanvas() {
   }
 
   const warps = run.fogGateWarps ?? [];
-  const svgW = REGION_WIDTH * 4 + 16 * 3 + 40;
-  const svgH = Math.max(
-    400,
-    Math.ceil(layouts.length / 4) * (REGION_HEIGHT + 16) + 40
-  );
+  const bounds = getMapBounds(layouts);
+  const svgW = bounds.w;
+  const svgH = bounds.h;
+  const viewBox = `${bounds.x + REGION_OFFSET} ${bounds.y + REGION_OFFSET} ${bounds.w} ${bounds.h}`;
 
   return (
     <div
@@ -168,23 +183,25 @@ export default function FogGateCanvas() {
         className="fog-canvas-svg"
         width={svgW}
         height={svgH}
-        viewBox={`0 0 ${svgW} ${svgH}`}
+        viewBox={viewBox}
         style={{ touchAction: "none" }}
       >
-        {/* Warp lines (under everything) */}
+        {/* Warp lines (under everything), curved so they read clearly */}
         <g className="fog-canvas-warps">
           {warps.map((warp, i) => {
             const fromPos = getHandleCoords(warp.from);
             const toPos = getHandleCoords(warp.to);
             if (!fromPos || !toPos) return null;
+            const { cx, cy } = getCurveControlPoint(
+              fromPos.x, fromPos.y,
+              toPos.x, toPos.y
+            );
             return (
-              <line
+              <path
                 key={`${sideRefKey(warp.from)}-${i}`}
-                x1={fromPos.x}
-                y1={fromPos.y}
-                x2={toPos.x}
-                y2={toPos.y}
+                d={`M ${fromPos.x} ${fromPos.y} Q ${cx} ${cy} ${toPos.x} ${toPos.y}`}
                 className="fog-canvas-warp-line"
+                fill="none"
                 strokeWidth={2}
               />
             );
@@ -195,13 +212,15 @@ export default function FogGateCanvas() {
               side: dragging.side,
             });
             if (!fromPos) return null;
+            const { cx, cy } = getCurveControlPoint(
+              fromPos.x, fromPos.y,
+              dragPosSvg.x, dragPosSvg.y
+            );
             return (
-              <line
-                x1={fromPos.x}
-                y1={fromPos.y}
-                x2={dragPosSvg.x}
-                y2={dragPosSvg.y}
+              <path
+                d={`M ${fromPos.x} ${fromPos.y} Q ${cx} ${cy} ${dragPosSvg.x} ${dragPosSvg.y}`}
                 className="fog-canvas-warp-line fog-canvas-warp-line--preview"
+                fill="none"
                 strokeWidth={2}
                 strokeDasharray="4 4"
               />
@@ -214,7 +233,7 @@ export default function FogGateCanvas() {
           <g
             key={region.areaId}
             className="fog-canvas-region"
-            transform={`translate(${region.x + 20}, ${region.y + 20})`}
+            transform={`translate(${region.x + REGION_OFFSET}, ${region.y + REGION_OFFSET})`}
           >
             <rect
               x={0}
