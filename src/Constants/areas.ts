@@ -11,6 +11,7 @@ export const DARK_SOULS_1_AREAS: Area[] = [
   { id: 'lower-undead-burg', name: 'Lower Undead Burg', fogGates: [] },
   { id: 'the-depths', name: 'The Depths', fogGates: [] },
   { id: 'blighttown', name: 'Blighttown', fogGates: [] },
+  { id: 'great-hollow', name: 'Great Hollow', fogGates: [] },
   { id: 'quelaags-domain', name: "Quelaag's Domain", fogGates: [] },
   { id: 'sen-fortress', name: "Sen's Fortress", fogGates: [] },
   { id: 'painted-world', name: 'Painted World of Ariamis', fogGates: [] },

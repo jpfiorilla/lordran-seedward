@@ -3,6 +3,8 @@ import type {
   Run,
   Area,
   FogGate,
+  FogGateWarp,
+  FogGateSideRef,
   AreaId,
   FogGateId,
   KeyId,
@@ -124,6 +126,36 @@ const runSlice = createSlice({
       const area = state.run.areas.find((a) => a.id === action.payload.areaId);
       if (!area) return;
       area.fogGates.push(action.payload.fogGate);
+      saveToStorage(state.run);
+    },
+    setFogGateWarp(
+      state,
+      action: PayloadAction<{ from: FogGateSideRef; to: FogGateSideRef }>,
+    ) {
+      if (!state.run) return;
+      const { from, to } = action.payload;
+      if (
+        from.fogGateId === to.fogGateId &&
+        from.side === to.side
+      )
+        return;
+      state.run.fogGateWarps = state.run.fogGateWarps.filter(
+        (w) =>
+          !(w.from.fogGateId === from.fogGateId && w.from.side === from.side),
+      );
+      state.run.fogGateWarps.push({ from, to });
+      saveToStorage(state.run);
+    },
+    removeFogGateWarp(
+      state,
+      action: PayloadAction<FogGateSideRef>,
+    ) {
+      if (!state.run) return;
+      const from = action.payload;
+      state.run.fogGateWarps = state.run.fogGateWarps.filter(
+        (w) =>
+          !(w.from.fogGateId === from.fogGateId && w.from.side === from.side),
+      );
       saveToStorage(state.run);
     },
     setFogGateCleared(
