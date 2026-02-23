@@ -120,6 +120,10 @@ export default function FogGateCanvas() {
     };
   }, [measureHandles, scheduleMeasure]);
 
+  useLayoutEffect(() => {
+    if (run) scheduleMeasure();
+  }, [run, scheduleMeasure]);
+
   const setHandleRef = useCallback((key, el) => {
     if (el) handleRefs.current.set(key, el);
     else handleRefs.current.delete(key);

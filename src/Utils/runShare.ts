@@ -1,0 +1,105 @@
+import LZString from "lz-string";
+import type { Run, FogGateSide, Area } from "../Constants/schema";
+
+const SHARE_PARAM = "run";
+
+type CompactRun = {
+  i: string;
+  t: number;
+  a: unknown[];
+  w: [string, FogGateSide, string, FogGateSide][];
+  c?: string[];
+  k?: string[];
+  ki?: string[];
+  b?: string[];
+  o?: string[];
+  s?: string[];
+};
+
+function toIdArray(value: unknown, asRecord: boolean): string[] {
+  if (Array.isArray(value)) return value;
+  if (asRecord && value && typeof value === "object") {
+    return Object.entries(value)
+      .filter(([, v]) => v === true)
+      .map(([k]) => k);
+  }
+  return [];
+}
+
+function compactToRun(c: CompactRun): Run {
+  return {
+    id: c.i,
+    createdAt: c.t,
+    areas: c.a as Area[],
+    fogGateWarps: (c.w ?? []).map(([fg1, s1, fg2, s2]) => ({
+      from: { fogGateId: fg1, side: s1 },
+      to: { fogGateId: fg2, side: s2 },
+    })),
+    fogGatesCleared: c.c ?? [],
+    acquiredKeys: c.k ?? [],
+    acquiredKeyItems: c.ki ?? [],
+    bellsRung: c.b ?? [],
+    bossesDefeated: c.o ?? [],
+    shortcutsUnlocked: c.s ?? [],
+  };
+}
+
+function runToCompact(run: Run): CompactRun {
+  return {
+    i: run.id,
+    t: run.createdAt,
+    a: run.areas,
+    w: run.fogGateWarps.map((w) => [
+      w.from.fogGateId,
+      w.from.side,
+      w.to.fogGateId,
+      w.to.side,
+    ]),
+    c: run.fogGatesCleared?.length ? run.fogGatesCleared : undefined,
+    k: run.acquiredKeys.length ? run.acquiredKeys : undefined,
+    ki: run.acquiredKeyItems.length ? run.acquiredKeyItems : undefined,
+    b: run.bellsRung.length ? run.bellsRung : undefined,
+    o: run.bossesDefeated.length ? run.bossesDefeated : undefined,
+    s: run.shortcutsUnlocked.length ? run.shortcutsUnlocked : undefined,
+  };
+}
+
+/** Encode run to a short URI-safe string (compact JSON + LZ compression). */
+export function encodeRunToShareParam(run: Run): string {
+  const compact = runToCompact(run);
+  const json = JSON.stringify(compact);
+  return LZString.compressToEncodedURIComponent(json);
+}
+
+/** Decode run from a share param; returns null if invalid. */
+export function decodeRunFromShareParam(param: string | null): Run | null {
+  if (!param || typeof param !== "string") return null;
+  try {
+    const json = LZString.decompressFromEncodedURIComponent(param);
+    if (!json) return null;
+    const c = JSON.parse(json) as unknown;
+    if (!c || typeof c !== "object") return null;
+    const comp = c as Record<string, unknown>;
+    if (typeof comp.i !== "string" || !Array.isArray(comp.a)) return null;
+    const warps = Array.isArray(comp.w)
+      ? (comp.w as [string, FogGateSide, string, FogGateSide][])
+      : [];
+    const compact: CompactRun = {
+      i: comp.i,
+      t: typeof comp.t === "number" ? comp.t : Date.now(),
+      a: comp.a,
+      w: warps,
+      c: Array.isArray(comp.c) ? comp.c : undefined,
+      k: toIdArray(comp.k, true),
+      ki: toIdArray(comp.ki, true),
+      b: toIdArray(comp.b, true),
+      o: toIdArray(comp.o, true),
+      s: toIdArray(comp.s, true),
+    };
+    return compactToRun(compact);
+  } catch {
+    return null;
+  }
+}
+
+export { SHARE_PARAM };

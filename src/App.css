@@ -1,11 +1,12 @@
 .App {
+  font-family: "IM Fell English", "Times New Roman", serif;
   min-height: 100vh;
   background: #1a1b1e;
   color: #e4e4e7;
 }
 
 .App-header {
-  padding: 2rem 1.5rem;
+  padding: 0.75rem 1.5rem;
   border-bottom: 1px solid #2d2d30;
 }
 
@@ -19,6 +20,7 @@
 
 .App-title {
   margin: 0;
+  font-family: "MedievalSharp", "IM Fell English", serif;
   font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -59,7 +61,7 @@
 .App-main {
   max-width: 52rem;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 1rem 1.5rem;
 }
 
 .schema-intro {
@@ -102,7 +104,8 @@
 }
 
 .schema-def code {
-  font-family: ui-monospace, "SF Mono", Menlo, Monaco, "Cascadia Mono", monospace;
+  font-family:
+    ui-monospace, "SF Mono", Menlo, Monaco, "Cascadia Mono", monospace;
   font-size: 0.85rem;
   line-height: 1.5;
   color: #d4d4d8;
@@ -116,6 +119,12 @@
   margin-top: 2.5rem;
   padding-top: 2rem;
   border-top: 1px solid #27272a;
+}
+
+.content-section:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
 }
 
 .content-section--run-progress {
@@ -133,6 +142,10 @@
   font-size: 0.95rem;
   font-weight: 600;
   color: #a1a1aa;
+}
+
+.content-section:first-child .content-heading {
+  margin-top: 0;
 }
 
 .content-heading {
@@ -217,7 +230,8 @@
 .bonfire-id {
   font-size: 0.75rem;
   color: #71717a;
-  font-family: ui-monospace, "SF Mono", Menlo, Monaco, "Cascadia Mono", monospace;
+  font-family:
+    ui-monospace, "SF Mono", Menlo, Monaco, "Cascadia Mono", monospace;
 }
 
 .boss-list {
@@ -271,7 +285,8 @@
 .boss-id {
   font-size: 0.75rem;
   color: #71717a;
-  font-family: ui-monospace, "SF Mono", Menlo, Monaco, "Cascadia Mono", monospace;
+  font-family:
+    ui-monospace, "SF Mono", Menlo, Monaco, "Cascadia Mono", monospace;
 }
 
 .boss-tag {
@@ -364,7 +379,8 @@
 .bell-id {
   font-size: 0.75rem;
   color: #71717a;
-  font-family: ui-monospace, "SF Mono", Menlo, Monaco, "Cascadia Mono", monospace;
+  font-family:
+    ui-monospace, "SF Mono", Menlo, Monaco, "Cascadia Mono", monospace;
 }
 
 .shortcut-list {
@@ -466,7 +482,7 @@
 /* Fog gate canvas (HTML layout + SVG cables) */
 .fog-canvas-wrap {
   overflow: auto;
-  margin: 0 -0.5rem 1.5rem;
+  margin: 0 -0.5rem 1rem;
   padding: 0.5rem;
   background: #0f1012;
   border-radius: 8px;
@@ -517,6 +533,7 @@
 }
 
 .fog-canvas-region-name {
+  font-family: "MedievalSharp", serif;
   font-size: 0.8rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
@@ -542,6 +559,7 @@
 }
 
 .fog-canvas-gate-name {
+  font-family: "MedievalSharp", serif;
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -590,7 +608,9 @@
 }
 
 .fog-canvas-handle--hover-target {
-  box-shadow: inset 0 0 0 2px #0f1012, 0 0 0 2px var(--handle-color);
+  box-shadow:
+    inset 0 0 0 2px #0f1012,
+    0 0 0 2px var(--handle-color);
 }
 
 .fog-canvas-handle--drop-blocked {

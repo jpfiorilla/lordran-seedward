@@ -1,5 +1,6 @@
+import { useEffect } from "react";
 import "./App.css";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useSearchParams } from "react-router-dom";
 import { SCHEMA_DEFINITIONS } from "./Constants/schema";
 import { DARK_SOULS_1_AREAS } from "./Constants/areas";
 import { DARK_SOULS_1_BOSSES } from "./Constants/bosses";
@@ -15,11 +16,17 @@ import {
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import {
   startNewRun,
+  setRun,
   setBellRung,
   setBossDefeated,
   setShortcutUnlocked,
   clearRun,
 } from "./redux";
+import {
+  encodeRunToShareParam,
+  decodeRunFromShareParam,
+  SHARE_PARAM,
+} from "./Utils/runShare";
 import FogGateCanvas from "./FogGateCanvas";
 
 function SchemaBlock({ schema }) {
@@ -284,6 +291,53 @@ function DebugPage() {
 function App() {
   const dispatch = useAppDispatch();
   const run = useAppSelector((s) => s.run.run);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    const param = searchParams.get(SHARE_PARAM);
+    if (!param) return;
+    const decoded = decodeRunFromShareParam(param);
+    if (decoded) {
+      dispatch(setRun(decoded));
+    } else {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete(SHARE_PARAM);
+          return next;
+        },
+        { replace: true },
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount to apply shared link
+  }, []);
+
+  useEffect(() => {
+    const urlParam = searchParams.get(SHARE_PARAM);
+    if (urlParam && run) {
+      const fromUrl = decodeRunFromShareParam(urlParam);
+      if (fromUrl && fromUrl.id !== run.id) return;
+    }
+    if (run) {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.set(SHARE_PARAM, encodeRunToShareParam(run));
+          return next;
+        },
+        { replace: true },
+      );
+    } else {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete(SHARE_PARAM);
+          return next;
+        },
+        { replace: true },
+      );
+    }
+  }, [run, setSearchParams, searchParams]);
 
   return (
     <div className="App">
@@ -297,12 +351,6 @@ function App() {
             </h1>
           </div>
           <nav className="App-nav">
-            <Link to="/" className="App-nav-link">
-              Home
-            </Link>
-            <Link to="/debug" className="App-nav-link">
-              Debug
-            </Link>
             {run && (
               <button
                 type="button"
