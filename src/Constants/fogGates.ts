@@ -1,22 +1,24 @@
 import type { FogGate, Node } from "./schema";
 
 /**
- * Fog gates from randomizer runs. Each gate has two sides (front/back); each side is a node.
+ * Fog gates from randomizer runs. Each gate has one or two sides (front/back); each side is a node.
  * IDs and node IDs follow: gate id = areaId + "-" + slug; frontNodeId = id + "-front", backNodeId = id + "-back".
+ * Use { noFront: true } or { noBack: true } for gates that only have one side.
  * Sourced from observed run notes (asylum start ↔ firelink nest, burg/depths, catacombs, DLC, etc.).
  */
 function gate(
   areaId: string,
   slug: string,
   name: string,
-  bossId?: string
+  bossId?: string,
+  opts?: { noFront?: boolean; noBack?: boolean }
 ): FogGate {
   const id = `${areaId}-${slug}` as FogGate["id"];
   return {
     id,
     areaId,
-    frontNodeId: `${id}-front`,
-    backNodeId: `${id}-back`,
+    ...(!opts?.noFront && { frontNodeId: `${id}-front` }),
+    ...(!opts?.noBack && { backNodeId: `${id}-back` }),
     name,
     ...(bossId && { bossId }),
   };
@@ -126,20 +128,20 @@ export function getFogGateNodes(_areas: { id: string; name: string }[]): Node[] 
   const nodes: Node[] = [];
   for (const g of FOG_GATES) {
     const label = g.name ?? g.id;
-    nodes.push(
-      {
+    if (g.frontNodeId)
+      nodes.push({
         id: g.frontNodeId,
         name: `${label} (front)`,
         areaId: g.areaId,
         kind: "path",
-      },
-      {
+      });
+    if (g.backNodeId)
+      nodes.push({
         id: g.backNodeId,
         name: `${label} (back)`,
         areaId: g.areaId,
         kind: "path",
-      }
-    );
+      });
   }
   return nodes;
 }
@@ -147,7 +149,7 @@ export function getFogGateNodes(_areas: { id: string; name: string }[]): Node[] 
 /** Lookup by id. */
 export const FOG_GATES_BY_ID = new Map(FOG_GATES.map((g) => [g.id, g]));
 
-/** All gate-side node ids (front and back). */
+/** All gate-side node ids (front and back, where defined). */
 export const FOG_GATE_NODE_IDS = new Set(
-  FOG_GATES.flatMap((g) => [g.frontNodeId, g.backNodeId])
+  FOG_GATES.flatMap((g) => [g.frontNodeId, g.backNodeId].filter(Boolean))
 );

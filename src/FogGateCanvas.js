@@ -61,7 +61,9 @@ export default function FogGateCanvas() {
   const getConnectionColorForHandle = useCallback(
     (fogGateId, side) => {
       const idx = warps.findIndex(
-        (w) => w.from.fogGateId === fogGateId && w.from.side === side,
+        (w) =>
+          (w.from.fogGateId === fogGateId && w.from.side === side) ||
+          (w.to.fogGateId === fogGateId && w.to.side === side),
       );
       return idx >= 0
         ? CONNECTION_PALETTE[idx % CONNECTION_PALETTE.length]
@@ -348,14 +350,27 @@ export default function FogGateCanvas() {
                     </span>
                     <div className="fog-canvas-handles">
                       {["front", "back"].map((side) => {
+                        const hasSide =
+                          (side === "front" && gate.frontNodeId != null) ||
+                          (side === "back" && gate.backNodeId != null);
+                        if (!hasSide) {
+                          return (
+                            <span
+                              key={side}
+                              className="fog-canvas-handle-spacer"
+                              aria-hidden
+                            />
+                          );
+                        }
+                        const isSource =
+                          dragging &&
+                          dragging.fogGateId === gate.id &&
+                          dragging.side === side;
                         const isHoverTarget =
                           dragging &&
                           hoverTarget?.fogGateId === gate.id &&
                           hoverTarget?.side === side &&
-                          !(
-                            dragging.fogGateId === gate.id &&
-                            dragging.side === side
-                          );
+                          !isSource;
                         const connectionColor = getConnectionColorForHandle(
                           gate.id,
                           side,
@@ -379,11 +394,9 @@ export default function FogGateCanvas() {
                               connectionColor
                                 ? " fog-canvas-handle--connected"
                                 : ""
-                            }${isHoverTarget && !isDropBlocked ? " fog-canvas-handle--hover-target" : ""}${
-                              isDropBlocked
-                                ? " fog-canvas-handle--drop-blocked"
-                                : ""
-                            }`}
+                            }${isSource ? " fog-canvas-handle--source" : ""}${
+                              isHoverTarget && !isDropBlocked ? " fog-canvas-handle--hover-target" : ""
+                            }${isDropBlocked ? " fog-canvas-handle--drop-blocked" : ""}`}
                             ref={(el) =>
                               setHandleRef(
                                 sideRefKey({ fogGateId: gate.id, side }),

@@ -34,8 +34,8 @@ export function getFogGateExits(
   if (!run?.fogGateWarps?.length) return out;
   const sideToNode = new Map<string, string>();
   for (const g of fogGates) {
-    sideToNode.set(`${g.id}:front`, g.frontNodeId);
-    sideToNode.set(`${g.id}:back`, g.backNodeId);
+    if (g.frontNodeId) sideToNode.set(`${g.id}:front`, g.frontNodeId);
+    if (g.backNodeId) sideToNode.set(`${g.id}:back`, g.backNodeId);
   }
   const warpTo = new Map<string, FogGateSideRef>();
   for (const w of run.fogGateWarps) {

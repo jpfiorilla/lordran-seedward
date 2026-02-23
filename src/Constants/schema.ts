@@ -14,10 +14,10 @@ export type FogGate = {
   id: FogGateId;
   /** All fog gates exist within an area. */
   areaId: AreaId;
-  /** Node at the 'front' side of the gate. */
-  frontNodeId: NodeId;
-  /** Node at the 'back' side of the gate. */
-  backNodeId: NodeId;
+  /** Node at the 'front' side (optional; some gates have only back). */
+  frontNodeId?: NodeId;
+  /** Node at the 'back' side (optional; some gates have only front). */
+  backNodeId?: NodeId;
   name?: string;
   /** When set, gate is only traversable after this boss is defeated. */
   bossId?: BossId;
@@ -166,8 +166,8 @@ export const SCHEMA_DEFINITIONS = [
     def: `{
   id: FogGateId;
   areaId: AreaId;
-  frontNodeId: NodeId;
-  backNodeId: NodeId;
+  frontNodeId?: NodeId;
+  backNodeId?: NodeId;
   name?: string;
   bossId?: BossId;
 }`,

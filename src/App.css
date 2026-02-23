@@ -36,6 +36,7 @@
 }
 
 .App-nav {
+  font-family: "MedievalSharp", "IM Fell English", serif;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -65,6 +66,7 @@
 }
 
 .schema-intro {
+  font-family: "IM Fell English", "Times New Roman", serif;
   margin: 0 0 1.5rem;
   font-size: 0.95rem;
   color: #a1a1aa;
@@ -138,6 +140,7 @@
 }
 
 .content-subheading {
+  font-family: "MedievalSharp", "IM Fell English", serif;
   margin: 0 0 0.35rem;
   font-size: 0.95rem;
   font-weight: 600;
@@ -149,6 +152,7 @@
 }
 
 .content-heading {
+  font-family: "MedievalSharp", "IM Fell English", serif;
   margin: 0 0 0.25rem;
   font-size: 1.25rem;
   font-weight: 600;
@@ -308,6 +312,7 @@
 }
 
 .btn {
+  font-family: "MedievalSharp", "IM Fell English", serif;
   padding: 0.4rem 0.75rem;
   font-size: 0.875rem;
   font-weight: 500;
@@ -332,6 +337,35 @@
 
 .btn-danger:hover {
   background: #991b1b;
+}
+
+.btn-share {
+  background: #27272a;
+  color: #e4e4e7;
+  border: 1px solid #3f3f46;
+}
+
+.btn-share:hover {
+  background: #3f3f46;
+}
+
+.btn-share--copied .btn-share-feedback {
+  display: inline-block;
+  animation: btn-share-copied 0.4s ease-out;
+}
+
+@keyframes btn-share-copied {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .bell-list {
@@ -408,6 +442,7 @@
 }
 
 .map-hint {
+  font-family: "IM Fell English", "Times New Roman", serif;
   margin: 0 0 0.5rem;
   font-size: 0.85rem;
   color: #71717a;
@@ -568,10 +603,16 @@
 }
 
 .fog-canvas-handles {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto auto;
   align-items: center;
   gap: 0.25rem;
   flex-shrink: 0;
+}
+
+.fog-canvas-handle-spacer {
+  width: 18px;
+  height: 18px;
 }
 
 .fog-canvas-handle {
@@ -607,6 +648,14 @@
   filter: brightness(1.15);
 }
 
+.fog-canvas-handle--source {
+  transform: scale(1.15);
+  box-shadow:
+    inset 0 0 0 2px #0f1012,
+    0 0 0 3px var(--handle-color),
+    0 0 12px 2px var(--handle-color);
+}
+
 .fog-canvas-handle--hover-target {
   box-shadow:
     inset 0 0 0 2px #0f1012,
@@ -618,6 +667,7 @@
 }
 
 .fog-canvas-empty {
+  font-family: "IM Fell English", "Times New Roman", serif;
   padding: 3rem 1.5rem;
   text-align: center;
   color: #a1a1aa;

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 import "./App.css";
 import { Routes, Route, Link, useSearchParams } from "react-router-dom";
 import { SCHEMA_DEFINITIONS } from "./Constants/schema";
@@ -292,6 +292,17 @@ function App() {
   const dispatch = useAppDispatch();
   const run = useAppSelector((s) => s.run.run);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [copied, setCopied] = useState(false);
+
+  const copyShareLink = useCallback(() => {
+    if (!run) return;
+    const encoded = encodeRunToShareParam(run);
+    const url = `${window.location.origin}${window.location.pathname}?${SHARE_PARAM}=${encoded}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, [run]);
 
   useEffect(() => {
     const param = searchParams.get(SHARE_PARAM);
@@ -334,10 +345,18 @@ function App() {
           next.delete(SHARE_PARAM);
           return next;
         },
-        { replace: true },
+        { replace: false },
       );
     }
   }, [run, setSearchParams, searchParams]);
+
+  useEffect(() => {
+    if (run != null) return;
+    const param = searchParams.get(SHARE_PARAM);
+    if (!param) return;
+    const decoded = decodeRunFromShareParam(param);
+    if (decoded) dispatch(setRun(decoded));
+  }, [run, searchParams, dispatch]);
 
   return (
     <div className="App">
@@ -352,13 +371,27 @@ function App() {
           </div>
           <nav className="App-nav">
             {run && (
-              <button
-                type="button"
-                className="btn btn-danger"
-                onClick={() => dispatch(clearRun())}
-              >
-                Reset run
-              </button>
+              <>
+                <button
+                  type="button"
+                  className={`btn btn-share ${copied ? "btn-share--copied" : ""}`}
+                  onClick={copyShareLink}
+                  title="Copy share link"
+                >
+                  {copied ? (
+                    <span className="btn-share-feedback">Copied!</span>
+                  ) : (
+                    "Share"
+                  )}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={() => dispatch(clearRun())}
+                >
+                  Reset run
+                </button>
+              </>
             )}
           </nav>
         </div>
