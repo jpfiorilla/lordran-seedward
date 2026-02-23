@@ -122,11 +122,9 @@ export const FOG_GATES: FogGate[] = [
 /**
  * Node records for every fog gate side (front and back). Use with NODES for full graph.
  */
-export function getFogGateNodes(areas: { id: string; name: string }[]): Node[] {
-  const areaByName = new Map(areas.map((a) => [a.id, a]));
+export function getFogGateNodes(_areas: { id: string; name: string }[]): Node[] {
   const nodes: Node[] = [];
   for (const g of FOG_GATES) {
-    const areaName = areaByName.get(g.areaId)?.name ?? g.areaId;
     const label = g.name ?? g.id;
     nodes.push(
       {

@@ -34,7 +34,6 @@ const PALETTE = [
 ];
 
 const areaIdsInOrder = DARK_SOULS_1_AREAS.map((a) => a.id);
-const areaIndex = new Map(areaIdsInOrder.map((id, i) => [id, i]));
 
 export const AREA_COLORS: Record<string, string> = {};
 areaIdsInOrder.forEach((id, i) => {

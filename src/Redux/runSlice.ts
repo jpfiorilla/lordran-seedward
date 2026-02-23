@@ -3,7 +3,6 @@ import type {
   Run,
   Area,
   FogGate,
-  FogGateWarp,
   FogGateSideRef,
   AreaId,
   FogGateId,
