@@ -142,7 +142,17 @@ const runSlice = createSlice({
         (w) =>
           !(w.from.fogGateId === from.fogGateId && w.from.side === from.side),
       );
-      state.run.fogGateWarps.push({ from, to });
+      const nextColorIndex =
+        1 +
+        Math.max(
+          -1,
+          ...state.run.fogGateWarps.map((w) => w.colorIndex ?? -1),
+        );
+      state.run.fogGateWarps.push({
+        from,
+        to,
+        colorIndex: nextColorIndex,
+      });
       saveToStorage(state.run);
     },
     removeFogGateWarp(

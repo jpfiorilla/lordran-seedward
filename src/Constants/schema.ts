@@ -27,7 +27,12 @@ export type FogGate = {
 export type FogGateSideRef = { fogGateId: FogGateId; side: FogGateSide };
 
 /** Per-seed: one side of a gate warps to another gate's side (independent of the other side). */
-export type FogGateWarp = { from: FogGateSideRef; to: FogGateSideRef };
+export type FogGateWarp = {
+  from: FogGateSideRef;
+  to: FogGateSideRef;
+  /** Stable palette index so delete doesn't change other connections' colors. */
+  colorIndex?: number;
+};
 
 export type BonfireId = string;
 

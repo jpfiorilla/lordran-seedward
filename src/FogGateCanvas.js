@@ -7,23 +7,23 @@ function sideRefKey(ref) {
   return `${ref.fogGateId}:${ref.side}`;
 }
 
-/** Crafty / audio-studio cable palette (Reason-style soft synth wires). */
+/** High-contrast cable palette for dark background (crafty / Reason-style). */
 const CONNECTION_PALETTE = [
-  "#e07a5f",
-  "#81b29a",
-  "#3d405b",
-  "#f4a261",
-  "#2a9d8f",
-  "#e9c46a",
-  "#264653",
-  "#e76f51",
-  "#457b9d",
-  "#9b5de5",
-  "#00b4d8",
-  "#06d6a0",
-  "#ef476f",
-  "#ffd166",
-  "#118ab2",
+  "#f87171",
+  "#4ade80",
+  "#a78bfa",
+  "#fb923c",
+  "#2dd4bf",
+  "#facc15",
+  "#22d3ee",
+  "#f472b6",
+  "#60a5fa",
+  "#c084fc",
+  "#34d399",
+  "#06b6d4",
+  "#fb7185",
+  "#fbbf24",
+  "#38bdf8",
 ];
 
 /** Quadratic curve control point so the line bends and reads clearly. */
@@ -54,6 +54,23 @@ export default function FogGateCanvas() {
   const [dragging, setDragging] = useState(null);
   const [dragPos, setDragPos] = useState(null);
   const [hoverTarget, setHoverTarget] = useState(null);
+  const [hoveredWarpIndex, setHoveredWarpIndex] = useState(null);
+  const [modifierHeld, setModifierHeld] = useState(false);
+
+  useLayoutEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.metaKey || e.ctrlKey) setModifierHeld(true);
+    };
+    const onKeyUp = (e) => {
+      if (!e.metaKey && !e.ctrlKey) setModifierHeld(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
+    };
+  }, []);
 
   const layouts = getRegionLayouts();
   const warps = useMemo(() => run?.fogGateWarps ?? [], [run?.fogGateWarps]);
@@ -65,25 +82,28 @@ export default function FogGateCanvas() {
           (w.from.fogGateId === fogGateId && w.from.side === side) ||
           (w.to.fogGateId === fogGateId && w.to.side === side),
       );
-      return idx >= 0
-        ? CONNECTION_PALETTE[idx % CONNECTION_PALETTE.length]
-        : null;
+      if (idx < 0) return null;
+      const w = warps[idx];
+      const colorIndex = w.colorIndex ?? idx;
+      return CONNECTION_PALETTE[colorIndex % CONNECTION_PALETTE.length];
     },
     [warps],
   );
 
-  const hasHandleConnection = useCallback(
+  const getConnectionCountForHandle = useCallback(
     (fogGateId, side) =>
-      warps.some(
+      warps.filter(
         (w) =>
           (w.from.fogGateId === fogGateId && w.from.side === side) ||
           (w.to.fogGateId === fogGateId && w.to.side === side),
-      ),
+      ).length,
     [warps],
   );
 
+  const nextColorIndex =
+    1 + Math.max(-1, ...warps.map((w) => w.colorIndex ?? -1));
   const potentialConnectionColor =
-    CONNECTION_PALETTE[warps.length % CONNECTION_PALETTE.length];
+    CONNECTION_PALETTE[nextColorIndex % CONNECTION_PALETTE.length];
 
   const measureHandles = useCallback(() => {
     const container = containerRef.current;
@@ -139,11 +159,11 @@ export default function FogGateCanvas() {
         side: dragging.side,
       };
       const to = { fogGateId: targetFogGateId, side: targetSide };
-      const targetAlreadyHasConnection = hasHandleConnection(
+      const targetConnectionCount = getConnectionCountForHandle(
         targetFogGateId,
         targetSide,
       );
-      if (targetAlreadyHasConnection) {
+      if (targetConnectionCount >= 2) {
         setDragging(null);
         setDragPos(null);
         setHoverTarget(null);
@@ -156,7 +176,7 @@ export default function FogGateCanvas() {
       setDragPos(null);
       setHoverTarget(null);
     },
-    [dragging, run, dispatch, hasHandleConnection],
+    [dragging, run, dispatch, getConnectionCountForHandle],
   );
 
   const onHandlePointerDown = useCallback(
@@ -276,9 +296,9 @@ export default function FogGateCanvas() {
           height={svgH}
           viewBox={`0 0 ${svgW} ${svgH}`}
           preserveAspectRatio="none"
-          style={{ touchAction: "none", pointerEvents: "none" }}
+          style={{ touchAction: "none" }}
         >
-          <g className="fog-canvas-warps">
+          <g className="fog-canvas-warps" style={{ pointerEvents: "none" }}>
             {warps.map((warp, i) => {
               const fromPos = handlePositions.get(sideRefKey(warp.from));
               const toPos = handlePositions.get(sideRefKey(warp.to));
@@ -289,16 +309,29 @@ export default function FogGateCanvas() {
                 toPos.x,
                 toPos.y,
               );
+              const colorIndex = warp.colorIndex ?? i;
               const strokeColor =
-                CONNECTION_PALETTE[i % CONNECTION_PALETTE.length];
+                CONNECTION_PALETTE[colorIndex % CONNECTION_PALETTE.length];
+              const isHoveredWithModifier =
+                hoveredWarpIndex === i && modifierHeld;
               return (
                 <path
                   key={`${sideRefKey(warp.from)}-${i}`}
                   d={`M ${fromPos.x} ${fromPos.y} Q ${cx} ${cy} ${toPos.x} ${toPos.y}`}
-                  className="fog-canvas-warp-line"
+                  className={`fog-canvas-warp-line${isHoveredWithModifier ? " fog-canvas-warp-line--delete-hover" : ""}`}
                   fill="none"
-                  stroke={strokeColor}
-                  strokeWidth={2.5}
+                  stroke={isHoveredWithModifier ? "#dc2626" : strokeColor}
+                  strokeWidth={isHoveredWithModifier ? 4 : 2.5}
+                  style={{ pointerEvents: "stroke", cursor: modifierHeld ? "pointer" : "default" }}
+                  onPointerEnter={() => setHoveredWarpIndex(i)}
+                  onPointerLeave={() => setHoveredWarpIndex(null)}
+                  onClick={(e) => {
+                    if (e.metaKey || e.ctrlKey) {
+                      e.preventDefault();
+                      dispatch(removeFogGateWarp(warp.from));
+                    }
+                  }}
+                  title={modifierHeld ? "⌘/Ctrl+click to delete connection" : null}
                 />
               );
             })}
@@ -376,7 +409,8 @@ export default function FogGateCanvas() {
                           side,
                         );
                         const isDropBlocked =
-                          isHoverTarget && hasHandleConnection(gate.id, side);
+                          isHoverTarget &&
+                          getConnectionCountForHandle(gate.id, side) >= 2;
                         const displayColor =
                           isHoverTarget && !isDropBlocked
                             ? potentialConnectionColor

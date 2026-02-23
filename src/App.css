@@ -60,7 +60,7 @@
 }
 
 .App-main {
-  max-width: 52rem;
+  max-width: 1374px;
   margin: 0 auto;
   padding: 1rem 1.5rem;
 }
@@ -537,6 +537,8 @@
   width: 100%;
   height: 100%;
   overflow: visible;
+  z-index: 1;
+  pointer-events: none;
 }
 
 .fog-canvas-regions {
@@ -545,6 +547,7 @@
   gap: 1rem;
   padding: 0.5rem;
   position: relative;
+  pointer-events: none;
 }
 
 @media (min-width: 640px) {
@@ -565,6 +568,7 @@
   border-radius: 8px;
   padding: 0.5rem 0.75rem;
   min-width: 0;
+  pointer-events: none;
 }
 
 .fog-canvas-region-name {
@@ -591,6 +595,9 @@
   border-radius: 4px;
   font-size: 0.75rem;
   min-width: 0;
+  pointer-events: auto;
+  position: relative;
+  z-index: 2;
 }
 
 .fog-canvas-gate-name {
@@ -679,7 +686,16 @@
 
 .fog-canvas-warp-line {
   fill: none;
-  pointer-events: none;
+}
+
+.fog-canvas-warps .fog-canvas-warp-line {
+  pointer-events: stroke;
+}
+
+.fog-canvas-warp-line--delete-hover {
+  stroke: #dc2626;
+  stroke-width: 4px;
+  filter: drop-shadow(0 0 4px rgba(220, 38, 38, 0.8));
 }
 
 .fog-canvas-warp-line--preview {

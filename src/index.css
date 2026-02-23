@@ -1,3 +1,10 @@
+/* Wider layout (1374px content): scale up type so proportions stay balanced */
+@media (min-width: 1200px) {
+  html {
+    font-size: 20px;
+  }
+}
+
 body {
   margin: 0;
   font-family: "IM Fell English", "Times New Roman", serif;

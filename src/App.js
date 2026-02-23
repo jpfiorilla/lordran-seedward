@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import "./App.css";
 import { Routes, Route, Link, useSearchParams } from "react-router-dom";
 import { SCHEMA_DEFINITIONS } from "./Constants/schema";
@@ -293,6 +293,7 @@ function App() {
   const run = useAppSelector((s) => s.run.run);
   const [searchParams, setSearchParams] = useSearchParams();
   const [copied, setCopied] = useState(false);
+  const skipRestoreFromUrlRef = useRef(false);
 
   const copyShareLink = useCallback(() => {
     if (!run) return;
@@ -352,6 +353,10 @@ function App() {
 
   useEffect(() => {
     if (run != null) return;
+    if (skipRestoreFromUrlRef.current) {
+      skipRestoreFromUrlRef.current = false;
+      return;
+    }
     const param = searchParams.get(SHARE_PARAM);
     if (!param) return;
     const decoded = decodeRunFromShareParam(param);
@@ -387,7 +392,10 @@ function App() {
                 <button
                   type="button"
                   className="btn btn-danger"
-                  onClick={() => dispatch(clearRun())}
+                  onClick={() => {
+                    skipRestoreFromUrlRef.current = true;
+                    dispatch(clearRun());
+                  }}
                 >
                   Reset run
                 </button>
