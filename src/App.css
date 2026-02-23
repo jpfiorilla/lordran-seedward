@@ -463,7 +463,7 @@
   font-size: 0.9rem;
 }
 
-/* Fog gate canvas */
+/* Fog gate canvas (HTML layout + SVG cables) */
 .fog-canvas-wrap {
   overflow: auto;
   margin: 0 -0.5rem 1.5rem;
@@ -473,9 +473,113 @@
   border: 1px solid #27272a;
 }
 
-.fog-canvas-svg {
-  display: block;
+.fog-canvas-inner {
+  position: relative;
+  min-height: 200px;
   color: #e4e4e7;
+}
+
+.fog-canvas-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.fog-canvas-regions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  padding: 0.5rem;
+  position: relative;
+}
+
+@media (min-width: 640px) {
+  .fog-canvas-regions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  .fog-canvas-regions {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.fog-canvas-region {
+  background: color-mix(in srgb, var(--region-color, #374151) 35%, transparent);
+  border: 2px solid var(--region-color, #374151);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  min-width: 0;
+}
+
+.fog-canvas-region-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: currentColor;
+}
+
+.fog-canvas-gates {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.fog-canvas-gate {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  min-width: 0;
+}
+
+.fog-canvas-gate-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fog-canvas-handles {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.fog-canvas-handle {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid #1a1b1e;
+  padding: 0;
+  cursor: grab;
+  flex-shrink: 0;
+}
+
+.fog-canvas-handle:active {
+  cursor: grabbing;
+}
+
+.fog-canvas-handle:hover {
+  filter: brightness(1.2);
+}
+
+.fog-canvas-handle--front {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.fog-canvas-handle--back {
+  background: rgba(200, 200, 255, 0.9);
 }
 
 .fog-canvas-empty {
@@ -486,30 +590,6 @@
 
 .fog-canvas-empty .btn {
   margin-top: 0.75rem;
-}
-
-.fog-canvas-region-name {
-  font-size: 0.75rem;
-  font-weight: 600;
-  fill: currentColor;
-}
-
-.fog-canvas-gate-name {
-  font-size: 0.65rem;
-  fill: currentColor;
-  pointer-events: none;
-}
-
-.fog-canvas-handle {
-  cursor: grab;
-}
-
-.fog-canvas-handle:active {
-  cursor: grabbing;
-}
-
-.fog-canvas-handle:hover {
-  filter: brightness(1.2);
 }
 
 .fog-canvas-warp-line {

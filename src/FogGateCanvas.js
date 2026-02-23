@@ -1,53 +1,10 @@
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useLayoutEffect } from "react";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import { setFogGateWarp, removeFogGateWarp, startNewRun } from "./redux";
-import {
-  getRegionLayouts,
-  getGatePositionInRegion,
-  getMapBounds,
-  GATE_CARD_WIDTH,
-  GATE_CARD_HEIGHT,
-  HANDLE_FRONT_X,
-  HANDLE_BACK_X,
-  HANDLE_Y,
-  HANDLE_R,
-} from "./Constants/canvasLayout";
+import { getRegionLayouts } from "./Constants/canvasLayout";
 
 function sideRefKey(ref) {
   return `${ref.fogGateId}:${ref.side}`;
-}
-
-/** Build a map from FogGateSideRef key to { region, gateIndex } for resolving positions. */
-function buildHandleMap(layouts) {
-  const map = new Map();
-  layouts.forEach((region) => {
-    region.gates.forEach((gate, gateIndex) => {
-      map.set(sideRefKey({ fogGateId: gate.id, side: "front" }), {
-        region,
-        gateIndex,
-        side: "front",
-      });
-      map.set(sideRefKey({ fogGateId: gate.id, side: "back" }), {
-        region,
-        gateIndex,
-        side: "back",
-      });
-    });
-  });
-  return map;
-}
-
-const REGION_OFFSET = 20;
-
-function getHandlePosition(handleMap, region, gateIndex, side) {
-  const gatePos = getGatePositionInRegion(gateIndex);
-  const x =
-    region.x +
-    REGION_OFFSET +
-    gatePos.x +
-    (side === "front" ? HANDLE_FRONT_X : HANDLE_BACK_X);
-  const y = region.y + REGION_OFFSET + gatePos.y + HANDLE_Y;
-  return { x, y };
 }
 
 /** Quadratic curve control point so the line bends and reads clearly. */
@@ -70,28 +27,56 @@ function getCurveControlPoint(x1, y1, x2, y2) {
 export default function FogGateCanvas() {
   const dispatch = useAppDispatch();
   const run = useAppSelector((s) => s.run.run);
-  const svgRef = useRef(null);
+  const containerRef = useRef(null);
+  const handleRefs = useRef(new Map());
+  const [handlePositions, setHandlePositions] = useState(new Map());
+  const [containerRect, setContainerRect] = useState({ width: 1, height: 1 });
   const [dragging, setDragging] = useState(null);
-  const [dragPosSvg, setDragPosSvg] = useState(null);
+  const [dragPos, setDragPos] = useState(null);
 
   const layouts = getRegionLayouts();
-  const handleMap = useRef(null);
-  if (!handleMap.current) handleMap.current = buildHandleMap(layouts);
-  const handleMapCurrent = handleMap.current;
 
-  const getHandleCoords = useCallback(
-    (ref) => {
-      const entry = handleMapCurrent.get(sideRefKey(ref));
-      if (!entry) return null;
-      return getHandlePosition(
-        handleMapCurrent,
-        entry.region,
-        entry.gateIndex,
-        entry.side
-      );
-    },
-    [handleMapCurrent]
-  );
+  const measureHandles = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    const next = new Map();
+    handleRefs.current.forEach((el, key) => {
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      next.set(key, {
+        x: r.left - rect.left + r.width / 2,
+        y: r.top - rect.top + r.height / 2,
+      });
+    });
+    setHandlePositions(next);
+    setContainerRect({ width: rect.width, height: rect.height });
+  }, []);
+
+  const scheduleMeasure = useCallback(() => {
+    requestAnimationFrame(() => {
+      measureHandles();
+    });
+  }, [measureHandles]);
+
+  useLayoutEffect(() => {
+    measureHandles();
+    const container = containerRef.current;
+    if (!container) return;
+    const ro = new ResizeObserver(scheduleMeasure);
+    ro.observe(container);
+    const onWindowResize = () => scheduleMeasure();
+    window.addEventListener("resize", onWindowResize);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", onWindowResize);
+    };
+  }, [measureHandles, scheduleMeasure]);
+
+  const setHandleRef = useCallback((key, el) => {
+    if (el) handleRefs.current.set(key, el);
+    else handleRefs.current.delete(key);
+  }, []);
 
   const onHandlePointerDown = useCallback(
     (e, fogGateId, side) => {
@@ -102,12 +87,10 @@ export default function FogGateCanvas() {
         return;
       }
       setDragging({ fogGateId, side });
-      if (svgRef.current) {
-        const pt = svgRef.current.createSVGPoint();
-        pt.x = e.clientX;
-        pt.y = e.clientY;
-        const svgP = pt.matrixTransform(svgRef.current.getScreenCTM().inverse());
-        setDragPosSvg({ x: svgP.x, y: svgP.y });
+      const container = containerRef.current;
+      if (container) {
+        const rect = container.getBoundingClientRect();
+        setDragPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
       }
     },
     [run, dispatch]
@@ -122,21 +105,16 @@ export default function FogGateCanvas() {
         dispatch(setFogGateWarp({ from, to }));
       }
       setDragging(null);
-      setDragPosSvg(null);
+      setDragPos(null);
     },
     [dragging, run, dispatch]
   );
 
   const onPointerMove = useCallback(
     (e) => {
-      if (dragging && svgRef.current) {
-        const pt = svgRef.current.createSVGPoint();
-        pt.x = e.clientX;
-        pt.y = e.clientY;
-        const svgP = pt.matrixTransform(
-          svgRef.current.getScreenCTM().inverse()
-        );
-        setDragPosSvg({ x: svgP.x, y: svgP.y });
+      if (dragging && containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        setDragPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
       }
     },
     [dragging]
@@ -145,7 +123,7 @@ export default function FogGateCanvas() {
   const onPointerUpGlobal = useCallback(() => {
     if (dragging) {
       setDragging(null);
-      setDragPosSvg(null);
+      setDragPos(null);
     }
   }, [dragging]);
 
@@ -165,10 +143,7 @@ export default function FogGateCanvas() {
   }
 
   const warps = run.fogGateWarps ?? [];
-  const bounds = getMapBounds(layouts);
-  const svgW = bounds.w;
-  const svgH = bounds.h;
-  const viewBox = `${bounds.x + REGION_OFFSET} ${bounds.y + REGION_OFFSET} ${bounds.w} ${bounds.h}`;
+  const { width: svgW, height: svgH } = containerRect;
 
   return (
     <div
@@ -178,146 +153,117 @@ export default function FogGateCanvas() {
       onPointerUp={onPointerUpGlobal}
       onPointerCancel={onPointerUpGlobal}
     >
-      <svg
-        ref={svgRef}
-        className="fog-canvas-svg"
-        width={svgW}
-        height={svgH}
-        viewBox={viewBox}
-        style={{ touchAction: "none" }}
-      >
-        {/* Warp lines (under everything), curved so they read clearly */}
-        <g className="fog-canvas-warps">
-          {warps.map((warp, i) => {
-            const fromPos = getHandleCoords(warp.from);
-            const toPos = getHandleCoords(warp.to);
-            if (!fromPos || !toPos) return null;
-            const { cx, cy } = getCurveControlPoint(
-              fromPos.x, fromPos.y,
-              toPos.x, toPos.y
-            );
-            return (
-              <path
-                key={`${sideRefKey(warp.from)}-${i}`}
-                d={`M ${fromPos.x} ${fromPos.y} Q ${cx} ${cy} ${toPos.x} ${toPos.y}`}
-                className="fog-canvas-warp-line"
-                fill="none"
-                strokeWidth={2}
-              />
-            );
-          })}
-          {dragging && dragPosSvg !== null && (() => {
-            const fromPos = getHandleCoords({
-              fogGateId: dragging.fogGateId,
-              side: dragging.side,
-            });
-            if (!fromPos) return null;
-            const { cx, cy } = getCurveControlPoint(
-              fromPos.x, fromPos.y,
-              dragPosSvg.x, dragPosSvg.y
-            );
-            return (
-              <path
-                d={`M ${fromPos.x} ${fromPos.y} Q ${cx} ${cy} ${dragPosSvg.x} ${dragPosSvg.y}`}
-                className="fog-canvas-warp-line fog-canvas-warp-line--preview"
-                fill="none"
-                strokeWidth={2}
-                strokeDasharray="4 4"
-              />
-            );
-          })()}
-        </g>
-
-        {/* Regions and gates */}
-        {layouts.map((region) => (
-          <g
-            key={region.areaId}
-            className="fog-canvas-region"
-            transform={`translate(${region.x + REGION_OFFSET}, ${region.y + REGION_OFFSET})`}
-          >
-            <rect
-              x={0}
-              y={0}
-              width={region.width}
-              height={region.height}
-              fill={region.color}
-              fillOpacity={0.35}
-              stroke={region.color}
-              strokeWidth={2}
-              rx={8}
-            />
-            <text
-              x={region.width / 2}
-              y={18}
-              textAnchor="middle"
-              className="fog-canvas-region-name"
-              fill="currentColor"
-            >
-              {region.areaName}
-            </text>
-            {region.gates.map((gate, gateIndex) => {
-              const gatePos = getGatePositionInRegion(gateIndex);
-              const gx = gatePos.x;
-              const gy = gatePos.y;
+      <div ref={containerRef} className="fog-canvas-inner">
+        <svg
+          className="fog-canvas-lines"
+          width={svgW}
+          height={svgH}
+          viewBox={`0 0 ${svgW} ${svgH}`}
+          preserveAspectRatio="none"
+          style={{ touchAction: "none", pointerEvents: "none" }}
+        >
+          <g className="fog-canvas-warps">
+            {warps.map((warp, i) => {
+              const fromPos = handlePositions.get(sideRefKey(warp.from));
+              const toPos = handlePositions.get(sideRefKey(warp.to));
+              if (!fromPos || !toPos) return null;
+              const { cx, cy } = getCurveControlPoint(
+                fromPos.x, fromPos.y,
+                toPos.x, toPos.y
+              );
               return (
-                <g
-                  key={gate.id}
-                  transform={`translate(${gx}, ${gy})`}
-                  className="fog-canvas-gate"
-                >
-                  <rect
-                    width={GATE_CARD_WIDTH}
-                    height={GATE_CARD_HEIGHT}
-                    fill="rgba(0,0,0,0.4)"
-                    stroke="rgba(255,255,255,0.3)"
-                    strokeWidth={1}
-                    rx={4}
-                  />
-                  <text
-                    x={GATE_CARD_WIDTH / 2}
-                    y={GATE_CARD_HEIGHT / 2 + 4}
-                    textAnchor="middle"
-                    className="fog-canvas-gate-name"
-                    fill="currentColor"
-                  >
-                    {gate.name ?? gate.id}
-                  </text>
-                  {/* Front handle (left) */}
-                  <circle
-                    cx={HANDLE_FRONT_X}
-                    cy={HANDLE_Y}
-                    r={HANDLE_R}
-                    className="fog-canvas-handle fog-canvas-handle--front"
-                    data-handle
-                    data-fog-gate-id={gate.id}
-                    data-side="front"
-                    fill="rgba(255,255,255,0.9)"
-                    stroke="#1a1b1e"
-                    strokeWidth={1}
-                    onPointerDown={(e) => onHandlePointerDown(e, gate.id, "front")}
-                    onPointerUp={(e) => onHandlePointerUp(e, gate.id, "front")}
-                  />
-                  {/* Back handle (right) */}
-                  <circle
-                    cx={HANDLE_BACK_X}
-                    cy={HANDLE_Y}
-                    r={HANDLE_R}
-                    className="fog-canvas-handle fog-canvas-handle--back"
-                    data-handle
-                    data-fog-gate-id={gate.id}
-                    data-side="back"
-                    fill="rgba(200,200,255,0.9)"
-                    stroke="#1a1b1e"
-                    strokeWidth={1}
-                    onPointerDown={(e) => onHandlePointerDown(e, gate.id, "back")}
-                    onPointerUp={(e) => onHandlePointerUp(e, gate.id, "back")}
-                  />
-                </g>
+                <path
+                  key={`${sideRefKey(warp.from)}-${i}`}
+                  d={`M ${fromPos.x} ${fromPos.y} Q ${cx} ${cy} ${toPos.x} ${toPos.y}`}
+                  className="fog-canvas-warp-line"
+                  fill="none"
+                  strokeWidth={2}
+                />
               );
             })}
+            {dragging && dragPos && (() => {
+              const fromPos = handlePositions.get(
+                sideRefKey({ fogGateId: dragging.fogGateId, side: dragging.side })
+              );
+              if (!fromPos) return null;
+              const { cx, cy } = getCurveControlPoint(
+                fromPos.x, fromPos.y,
+                dragPos.x, dragPos.y
+              );
+              return (
+                <path
+                  d={`M ${fromPos.x} ${fromPos.y} Q ${cx} ${cy} ${dragPos.x} ${dragPos.y}`}
+                  className="fog-canvas-warp-line fog-canvas-warp-line--preview"
+                  fill="none"
+                  strokeWidth={2}
+                  strokeDasharray="4 4"
+                />
+              );
+            })()}
           </g>
-        ))}
-      </svg>
+        </svg>
+
+        <div className="fog-canvas-regions">
+          {layouts.map((region) => (
+            <div
+              key={region.areaId}
+              className="fog-canvas-region"
+              style={{
+                "--region-color": region.color,
+              }}
+            >
+              <div className="fog-canvas-region-name">{region.areaName}</div>
+              <div className="fog-canvas-gates">
+                {region.gates.map((gate) => (
+                  <div key={gate.id} className="fog-canvas-gate">
+                    <span className="fog-canvas-gate-name">
+                      {gate.name ?? gate.id}
+                    </span>
+                    <div className="fog-canvas-handles">
+                      <button
+                        type="button"
+                        className="fog-canvas-handle fog-canvas-handle--front"
+                        ref={(el) =>
+                          setHandleRef(
+                            sideRefKey({ fogGateId: gate.id, side: "front" }),
+                            el
+                          )
+                        }
+                        onPointerDown={(e) =>
+                          onHandlePointerDown(e, gate.id, "front")
+                        }
+                        onPointerUp={(e) =>
+                          onHandlePointerUp(e, gate.id, "front")
+                        }
+                        title="Front (drag to connect, ⌘/Ctrl+click to delete)"
+                        aria-label={`${gate.name ?? gate.id} front`}
+                      />
+                      <button
+                        type="button"
+                        className="fog-canvas-handle fog-canvas-handle--back"
+                        ref={(el) =>
+                          setHandleRef(
+                            sideRefKey({ fogGateId: gate.id, side: "back" }),
+                            el
+                          )
+                        }
+                        onPointerDown={(e) =>
+                          onHandlePointerDown(e, gate.id, "back")
+                        }
+                        onPointerUp={(e) =>
+                          onHandlePointerUp(e, gate.id, "back")
+                        }
+                        title="Back (drag to connect, ⌘/Ctrl+click to delete)"
+                        aria-label={`${gate.name ?? gate.id} back`}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
