@@ -44,7 +44,12 @@ const CRITICAL_PATH_ORDER: Record<string, string[]> = {
     "sif-arena",
   ],
   "the-depths": ["channeler", "gaping-dragon-entrance", "gaping-dragon-arena"],
-  "new-londo-ruins": ["entrance", "bridge", "house", "sealed", "four-kings"],
+  "new-londo-ruins": [
+    "catwalks",
+    "mass-of-souls",
+    "four-kings-entrance",
+    "four-kings-arena",
+  ],
   "the-catacombs": ["patches-bridge", "gravelord-coffin", "pinwheel-arena"],
   "sen-fortress": [
     "stairwell",
@@ -60,46 +65,61 @@ const CRITICAL_PATH_ORDER: Record<string, string[]> = {
     "quelaags-domain",
     "great-hollow",
   ],
-  "lost-izalith": [
-    "ceaseless-discharge",
-    "demon-firesage",
-    "demon-firesage-arena",
-    "centipede-demon",
+  "lost-izalith": ["bed-of-chaos", "bed-of-chaos-arena"],
+  "demon-ruins": [
+    "ceaseless-discharge-entrance",
+    "ceaseless-discharge-arena",
+    "centipede-demon-entrance",
     "centipede-demon-arena",
-    "bed-of-chaos",
-    "demon-centipede",
+    "centipede-demon-exit",
+    "demon-firesage-entrance",
+    "demon-firesage-arena",
+    "demon-firesage-exit",
   ],
-  "demon-ruins": ["ceaseless-discharge", "demon-firesage", "centipede-demon"],
   "royal-wood": [
-    "sanctuary-guardian",
+    "artorias-entrance",
     "artorias-arena",
-    "artorias",
+    "artorias-exit",
     "kalameet",
     "kalameet-arena",
+    "manus-entrance",
     "manus-arena",
   ],
   "anor-londo": [
     "entrance",
     "rafters",
     "archers",
-    "ornstein-and-smough-arena",
-    "lordvessel",
+    "ornstein-and-smough-entrance",
+    "ornstein-elevator",
+    "smough-elevator",
     "darkmoon-tomb",
     "painted-world",
   ],
   "tomb-of-the-giants": [
-    "first-bonfire",
     "dog-gate",
     "nito-entrance",
     "nito-arena",
+    "nito-arena-gravelord-version",
   ],
-  "the-dukes-archives": ["seath-cutscene", "jail", "crystal-cave-exit"],
-  "crystal-cave": ["seath-arena"],
-  "chasm-of-the-abyss": ["manus"],
-  "sanctuary-garden": ["guardian-hub", "sanctuary-guardian-arena"],
-  "painted-world": ["courtyard", "boss"],
+  "the-dukes-archives": [
+    "seath-cutscene",
+    "staff-jail",
+    "library-exit",
+    "seath-the-scaleless",
+    "seath-the-scaleless-arena",
+  ],
+  "sanctuary-garden": [
+    "guardian-foyer",
+    "sanctuary-guardian-entrance",
+    "sanctuary-guardian-arena",
+    "sanctuary-guardian-exit",
+  ],
+  "painted-world": [
+    "courtyard",
+    "crossbreed-priscilla",
+    "crossbreed-priscilla-arena",
+  ],
   "great-hollow": ["bottom"],
-  "kiln-of-the-first-flame": ["gwyn"],
 };
 
 function gateOrderIndex(g: FogGate): number {
@@ -162,11 +182,15 @@ const GATES_UNSORTED: FogGate[] = [
     bossId: "gaping-dragon",
     noBack: true,
   }),
-  gate("new-londo-ruins", "entrance", "Entrance"),
-  gate("new-londo-ruins", "bridge", "Bridge"),
-  gate("new-londo-ruins", "four-kings", "Four Kings"),
-  gate("new-londo-ruins", "house", "House"),
-  gate("new-londo-ruins", "sealed", "Sealed"),
+  gate("new-londo-ruins", "catwalks", "Catwalks"),
+  gate("new-londo-ruins", "mass-of-souls", "Mass of souls"),
+  gate("new-londo-ruins", "four-kings-entrance", "Four Kings entrance", {
+    noBack: true,
+  }),
+  gate("new-londo-ruins", "four-kings-arena", "Four Kings arena", {
+    bossId: "four-kings",
+    noFront: true,
+  }),
   gate("the-catacombs", "patches-bridge", "Patches bridge"),
   gate("the-catacombs", "gravelord-coffin", "Gravelord coffin", {
     noBack: true,
@@ -186,58 +210,147 @@ const GATES_UNSORTED: FogGate[] = [
   gate("blighttown", "quelaag", "Quelaag", { noBack: true }),
   gate("blighttown", "quelaag-arena", "Quelaag arena", {
     bossId: "chaos-witch-quelaag",
-    noBack: true,
   }),
   gate("blighttown", "quelaags-domain", "Quelaag's domain", {
     noFront: true,
   }),
   gate("blighttown", "great-hollow", "Great hollow"),
-  gate("lost-izalith", "ceaseless-discharge", "Ceaseless discharge"),
-  gate("lost-izalith", "centipede-demon", "Centipede demon"),
-  gate("lost-izalith", "centipede-demon-arena", "Centipede demon arena"),
-  gate("lost-izalith", "bed-of-chaos", "Bed of Chaos"),
-  gate("lost-izalith", "demon-firesage", "Demon Firesage"),
-  gate("lost-izalith", "demon-firesage-arena", "Demon Firesage arena"),
-  gate("lost-izalith", "demon-centipede", "Demon centipede"),
-  gate("royal-wood", "artorias", "Artorias"),
-  gate("royal-wood", "kalameet", "Kalameet"),
-  gate("royal-wood", "kalameet-arena", "Kalameet arena"),
-  gate("royal-wood", "manus-arena", "Manus arena"),
-  gate("royal-wood", "artorias-arena", "Artorias arena"),
-  gate("royal-wood", "sanctuary-guardian", "Sanctuary guardian"),
-  gate("anor-londo", "entrance", "Entrance (golem)", { noFront: true }),
-  gate("anor-londo", "ornstein-and-smough-arena", "Ornstein and Smough arena", {
-    bossId: "ornstein-and-smough",
+  gate("lost-izalith", "bed-of-chaos", "Bed of Chaos", { noBack: true }),
+  gate("lost-izalith", "bed-of-chaos-arena", "Bed of Chaos arena", {
+    noFront: true,
+    bossId: "bed-of-chaos",
   }),
+  gate("royal-wood", "artorias-entrance", "Artorias entrance", {
+    noBack: true,
+  }),
+  gate("royal-wood", "artorias-arena", "Artorias arena", {
+    bossId: "artorias",
+  }),
+  gate("royal-wood", "artorias-exit", "Artorias exit", {
+    noFront: true,
+  }),
+  gate("royal-wood", "kalameet", "Kalameet", {
+    noBack: true,
+  }),
+  gate("royal-wood", "kalameet-arena", "Kalameet arena", {
+    noFront: true,
+    bossId: "black-dragon-kalameet",
+  }),
+  gate("royal-wood", "manus-entrance", "Manus entrance", { noBack: true }),
+  gate("royal-wood", "manus-arena", "Manus arena", {
+    bossId: "manus-father-of-the-abyss",
+    noFront: true,
+  }),
+  gate("anor-londo", "entrance", "Entrance", { noFront: true }),
+  gate(
+    "anor-londo",
+    "ornstein-and-smough-entrance",
+    "Ornstein and Smough entrance",
+    {
+      bossId: "ornstein-and-smough",
+    },
+  ),
+  gate("anor-londo", "ornstein-elevator", "Ornstein elevator"),
+  gate("anor-londo", "smough-elevator", "Smough elevator"),
   gate("anor-londo", "archers", "Archers"),
   gate("anor-londo", "rafters", "Rafters"),
   gate("anor-londo", "darkmoon-tomb", "Darkmoon tomb"),
-  gate("anor-londo", "lordvessel", "Lordvessel"),
-  gate("anor-londo", "painted-world", "Painted world"),
-  gate("tomb-of-the-giants", "nito-arena", "Nito arena"),
-  gate("tomb-of-the-giants", "first-bonfire", "First bonfire"),
-  gate("tomb-of-the-giants", "nito-entrance", "Nito entrance"),
+  gate("anor-londo", "painted-world", "Painted world", { noBack: true }),
   gate("tomb-of-the-giants", "dog-gate", "Dog gate"),
+  gate("tomb-of-the-giants", "nito-entrance", "Nito entrance", {
+    noBack: true,
+  }),
+  gate("tomb-of-the-giants", "nito-arena", "Nito arena", {
+    bossId: "nito",
+    noFront: true,
+  }),
+  gate(
+    "tomb-of-the-giants",
+    "nito-arena-gravelord-version",
+    "Nito arena (Gravelord version)",
+    {
+      noFront: true,
+    },
+  ),
   gate("the-dukes-archives", "seath-cutscene", "Seath cutscene"),
-  gate("the-dukes-archives", "jail", "Jail"),
-  gate("the-dukes-archives", "crystal-cave-exit", "Crystal cave exit"),
-  gate("chasm-of-the-abyss", "manus", "Manus"),
+  gate("the-dukes-archives", "staff-jail", "Staff/Jail"),
+  gate("the-dukes-archives", "library-exit", "Library exit"),
+  gate("the-dukes-archives", "seath-the-scaleless", "Seath the Scaleless", {
+    noBack: true,
+  }),
+  gate(
+    "the-dukes-archives",
+    "seath-the-scaleless-arena",
+    "Seath the Scaleless arena",
+    { noFront: true, bossId: "seath-the-scaleless" },
+  ),
+  gate("sanctuary-garden", "guardian-foyer", "Guardian foyer", {
+    noBack: true,
+  }),
+  gate(
+    "sanctuary-garden",
+    "sanctuary-guardian-entrance",
+    "Sanctuary guardian entrance",
+    {
+      noBack: true,
+    },
+  ),
   gate(
     "sanctuary-garden",
     "sanctuary-guardian-arena",
     "Sanctuary guardian arena",
+    { bossId: "sanctuary-guardian" },
   ),
-  gate("sanctuary-garden", "guardian-hub", "Guardian hub"),
+  gate(
+    "sanctuary-garden",
+    "sanctuary-guardian-exit",
+    "Sanctuary guardian exit",
+    {
+      noFront: true,
+    },
+  ),
   gate("painted-world", "courtyard", "Courtyard"),
-  gate("painted-world", "boss", "Boss"),
-  gate("demon-ruins", "ceaseless-discharge", "Ceaseless discharge", {
-    bossId: "ceaseless-discharge",
+  gate("painted-world", "crossbreed-priscilla", "Crossbreed Priscilla", {
+    noBack: true,
   }),
-  gate("demon-ruins", "centipede-demon", "Centipede demon"),
-  gate("demon-ruins", "demon-firesage", "Demon Firesage"),
-  gate("crystal-cave", "seath-arena", "Seath arena"),
-  gate("kiln-of-the-first-flame", "gwyn", "Gwyn", {
-    bossId: "gwyn-lord-of-cinder",
+  gate(
+    "painted-world",
+    "crossbreed-priscilla-arena",
+    "Crossbreed Priscilla arena",
+    {
+      bossId: "crossbreed-priscilla",
+      noFront: true,
+    },
+  ),
+  gate("demon-ruins", "ceaseless-discharge-entrance", "Ceaseless discharge", {
+    noBack: true,
+  }),
+  gate(
+    "demon-ruins",
+    "ceaseless-discharge-arena",
+    "Ceaseless discharge arena",
+    {
+      bossId: "ceaseless-discharge",
+      noFront: true,
+    },
+  ),
+  gate("demon-ruins", "centipede-demon-entrance", "Centipede demon", {
+    noBack: true,
+  }),
+  gate("demon-ruins", "centipede-demon-arena", "Centipede demon arena", {
+    bossId: "centipede-demon",
+  }),
+  gate("demon-ruins", "centipede-demon-exit", "Centipede demon exit", {
+    noFront: true,
+  }),
+  gate("demon-ruins", "demon-firesage-entrance", "Demon firesage", {
+    noBack: true,
+  }),
+  gate("demon-ruins", "demon-firesage-arena", "Demon Firesage arena", {
+    bossId: "demon-firesage",
+  }),
+  gate("demon-ruins", "demon-firesage-exit", "Demon firesage exit", {
+    noFront: true,
   }),
 ];
 
