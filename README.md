@@ -29,6 +29,10 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
+### `npm run deploy`
+
+Builds the app and deploys the `build` folder to the `gh-pages` branch for [GitHub Pages](https://pages.github.com/). The app will be served at `https://<username>.github.io/lordran-seedkeeper/`. Ensure **Settings → Pages** is set to deploy from the `gh-pages` branch. The build also copies `index.html` to `404.html` so client-side routes (e.g. `/debug`) work on refresh.
+
 ### `npm run eject`
 
 **Note: this is a one-way operation. Once you `eject`, you can't go back!**
