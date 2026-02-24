@@ -7,7 +7,12 @@ import {
   useMemo,
 } from "react";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
-import { setFogGateWarp, removeFogGateWarp, startNewRun } from "./redux";
+import {
+  setFogGateWarp,
+  removeFogGateWarp,
+  setBossDefeated,
+  startNewRun,
+} from "./redux";
 import { getRegionLayouts } from "./Constants/canvasLayout";
 
 function sideRefKey(ref) {
@@ -420,7 +425,37 @@ export default function FogGateCanvas() {
                   <div key={gate.id} className="fog-canvas-gate">
                     <span className="fog-canvas-gate-name">
                       {gate.name ?? gate.id}
-                      {gate.bossId ? " 💀" : null}
+                      {gate.bossId && (
+                        <button
+                          type="button"
+                          className={`fog-canvas-boss-toggle${run?.bossesDefeated?.includes(gate.bossId) ? " fog-canvas-boss-toggle--defeated" : ""}`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (!run) return;
+                            dispatch(
+                              setBossDefeated({
+                                bossId: gate.bossId,
+                                defeated: !run.bossesDefeated.includes(
+                                  gate.bossId,
+                                ),
+                              }),
+                            );
+                          }}
+                          title={
+                            run?.bossesDefeated?.includes(gate.bossId)
+                              ? "Mark boss as not defeated"
+                              : "Mark boss as defeated"
+                          }
+                          aria-label={
+                            run?.bossesDefeated?.includes(gate.bossId)
+                              ? "Boss defeated (click to undo)"
+                              : "Mark boss defeated"
+                          }
+                        >
+                          💀
+                        </button>
+                      )}
                     </span>
                     <div className="fog-canvas-handles">
                       {["front", "back"].map((side) => {
