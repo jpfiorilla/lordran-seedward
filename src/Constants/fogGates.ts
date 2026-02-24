@@ -26,7 +26,7 @@ function gate(
 /** Gate slug order per area: standard critical path (order encountered in a typical run). */
 const CRITICAL_PATH_ORDER: Record<string, string[]> = {
   "northern-undead-asylum": ["start", "boss-gate", "stray-demon-arena"],
-  "firelink-shrine": ["nest"],
+  "firelink-shrine": ["birds-nest"],
   "undead-burg": [
     "hellkite-dragon-cutscene",
     "taurus-demon",
@@ -137,7 +137,7 @@ const GATES_UNSORTED: FogGate[] = [
     bossId: "stray-demon",
     noBack: true,
   }),
-  gate("firelink-shrine", "nest", "Nest", { noBack: true }),
+  gate("firelink-shrine", "birds-nest", "Bird's nest", { noBack: true }),
   gate("undead-burg", "hellkite-dragon-cutscene", "Hellkite dragon cutscene"),
   gate("undead-burg", "taurus-demon", "Taurus demon", { noBack: true }),
   gate("undead-burg", "taurus-demon-exit", "Taurus demon exit", {

@@ -27,6 +27,14 @@ import {
   CodeIcon,
 } from "./Icons";
 
+const SHORTCUTS = [
+  {
+    id: "parish-elevator",
+    label: "Parish elevator (Firelink ↔ Undead Parish)",
+  },
+  { id: "chaos-servant-covenant", label: "Chaos servant covenant" },
+];
+
 function SchemaBlock({ schema }) {
   return (
     <section className="schema-block">
@@ -155,23 +163,25 @@ function HomePage() {
               Shortcuts
             </h2>
             <ul className="shortcut-list">
-              <li className="shortcut-item">
-                <label className="shortcut-checkbox">
-                  <input
-                    type="checkbox"
-                    checked={run.shortcutsUnlocked.includes("parish-elevator")}
-                    onChange={(e) =>
-                      dispatch(
-                        setShortcutUnlocked({
-                          shortcutId: "parish-elevator",
-                          unlocked: e.target.checked,
-                        }),
-                      )
-                    }
-                  />
-                  <span>Parish elevator (Firelink ↔ Undead Parish)</span>
-                </label>
-              </li>
+              {SHORTCUTS.map(({ id, label }) => (
+                <li key={id} className="shortcut-item">
+                  <label className="shortcut-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={run.shortcutsUnlocked.includes(id)}
+                      onChange={(e) =>
+                        dispatch(
+                          setShortcutUnlocked({
+                            shortcutId: id,
+                            unlocked: e.target.checked,
+                          }),
+                        )
+                      }
+                    />
+                    <span>{label}</span>
+                  </label>
+                </li>
+              ))}
             </ul>
           </section>
         )}
