@@ -27,7 +27,8 @@ function gate(
 const CRITICAL_PATH_ORDER: Record<string, string[]> = {
   "northern-undead-asylum": [
     "start",
-    "boss-gate",
+    "asylum-demon-entrance",
+    "asylum-demon-arena",
     "stray-demon-arena",
     "bird-pickup",
   ],
@@ -37,7 +38,7 @@ const CRITICAL_PATH_ORDER: Record<string, string[]> = {
     "taurus-demon",
     "taurus-demon-arena",
     "taurus-demon-exit",
-    "capra-demon-arena",
+    "capra-demon-entrance",
   ],
   "undead-parish": ["bridge", "gargoyles", "gargoyles-arena"],
   "darkroot-garden": [
@@ -46,16 +47,16 @@ const CRITICAL_PATH_ORDER: Record<string, string[]> = {
     "moonlight-butterfly-arena",
     "divine-ember",
     "sif-door",
-    "sif-arena",
+    "sif-entrance",
   ],
   "the-depths": ["channeler", "gaping-dragon-entrance", "gaping-dragon-arena"],
   "new-londo-ruins": [
     "catwalks",
     "mass-of-souls",
     "four-kings-entrance",
-    "four-kings-arena",
+    "four-kings-exit",
   ],
-  "the-catacombs": ["patches-bridge", "gravelord-coffin", "pinwheel-arena"],
+  "the-catacombs": ["patches-bridge", "gravelord-coffin", "pinwheel-entrance"],
   "sen-fortress": [
     "stairwell",
     "roof",
@@ -70,10 +71,10 @@ const CRITICAL_PATH_ORDER: Record<string, string[]> = {
     "quelaags-domain",
     "great-hollow",
   ],
-  "lost-izalith": ["bed-of-chaos", "bed-of-chaos-arena"],
+  "lost-izalith": ["bed-of-chaos", "bed-of-chaos-exit"],
   "demon-ruins": [
     "ceaseless-discharge-entrance",
-    "ceaseless-discharge-arena",
+    "ceaseless-discharge-exit",
     "centipede-demon-entrance",
     "centipede-demon-arena",
     "centipede-demon-exit",
@@ -86,15 +87,15 @@ const CRITICAL_PATH_ORDER: Record<string, string[]> = {
     "artorias-arena",
     "artorias-exit",
     "kalameet",
-    "kalameet-arena",
+    "kalameet-exit",
     "manus-entrance",
-    "manus-arena",
+    "manus-exit",
   ],
   "anor-londo": [
     "entrance",
     "rafters",
     "archers",
-    "ornstein-and-smough-entrance",
+    "ornstein-and-smough-arena",
     "ornstein-elevator",
     "smough-elevator",
     "darkmoon-tomb",
@@ -103,7 +104,7 @@ const CRITICAL_PATH_ORDER: Record<string, string[]> = {
   "tomb-of-the-giants": [
     "dog-gate",
     "nito-entrance",
-    "nito-arena",
+    "nito-exit",
     "nito-arena-gravelord-version",
   ],
   "the-dukes-archives": [
@@ -111,7 +112,7 @@ const CRITICAL_PATH_ORDER: Record<string, string[]> = {
     "staff-jail",
     "library-exit",
     "seath-the-scaleless",
-    "seath-the-scaleless-arena",
+    "seath-the-scaleless-exit",
   ],
   "sanctuary-garden": [
     "guardian-foyer",
@@ -122,7 +123,7 @@ const CRITICAL_PATH_ORDER: Record<string, string[]> = {
   "painted-world": [
     "courtyard",
     "crossbreed-priscilla",
-    "crossbreed-priscilla-arena",
+    "crossbreed-priscilla-exit",
   ],
   "great-hollow": ["bottom"],
 };
@@ -137,11 +138,25 @@ function gateOrderIndex(g: FogGate): number {
 
 const GATES_UNSORTED: FogGate[] = [
   gate("northern-undead-asylum", "start", "Start (Oscar)"),
-  gate("northern-undead-asylum", "boss-gate", "Boss gate"),
-  gate("northern-undead-asylum", "stray-demon-arena", "Stray demon arena", {
-    bossId: "stray-demon",
-    noBack: true,
+  gate(
+    "northern-undead-asylum",
+    "asylum-demon-entrance",
+    "Asylum demon entrance",
+    { noBack: true },
+  ),
+  gate("northern-undead-asylum", "asylum-demon-arena", "Asylum demon arena", {
+    bossId: "asylum-demon",
+    noFront: true,
   }),
+  gate(
+    "northern-undead-asylum",
+    "stray-demon-entrance",
+    "Stray demon entrance",
+    {
+      bossId: "stray-demon",
+      noBack: true,
+    },
+  ),
   gate("northern-undead-asylum", "bird-pickup", "Bird pickup", {
     noBack: true,
   }),
@@ -154,7 +169,7 @@ const GATES_UNSORTED: FogGate[] = [
   gate("undead-burg", "taurus-demon-arena", "Taurus demon arena", {
     bossId: "taurus-demon",
   }),
-  gate("undead-burg", "capra-demon-arena", "Capra demon arena", {
+  gate("undead-burg", "capra-demon-entrance", "Capra demon entrance", {
     bossId: "capra-demon",
     noBack: true,
   }),
@@ -178,7 +193,7 @@ const GATES_UNSORTED: FogGate[] = [
     { bossId: "moonlight-butterfly" },
   ),
   gate("darkroot-garden", "divine-ember", "Divine ember", { noFront: true }),
-  gate("darkroot-garden", "sif-arena", "Sif arena", {
+  gate("darkroot-garden", "sif-entrance", "Sif entrance", {
     bossId: "sif",
     noBack: true,
   }),
@@ -195,7 +210,7 @@ const GATES_UNSORTED: FogGate[] = [
   gate("new-londo-ruins", "four-kings-entrance", "Four Kings entrance", {
     noBack: true,
   }),
-  gate("new-londo-ruins", "four-kings-arena", "Four Kings arena", {
+  gate("new-londo-ruins", "four-kings-exit", "Four Kings exit", {
     bossId: "four-kings",
     noFront: true,
   }),
@@ -203,7 +218,7 @@ const GATES_UNSORTED: FogGate[] = [
   gate("the-catacombs", "gravelord-coffin", "Gravelord coffin", {
     noBack: true,
   }),
-  gate("the-catacombs", "pinwheel-arena", "Pinwheel arena", {
+  gate("the-catacombs", "pinwheel-entrance", "Pinwheel entrance", {
     bossId: "pinwheel",
     noBack: true,
   }),
@@ -224,7 +239,7 @@ const GATES_UNSORTED: FogGate[] = [
   }),
   gate("blighttown", "great-hollow", "Great hollow"),
   gate("lost-izalith", "bed-of-chaos", "Bed of Chaos", { noBack: true }),
-  gate("lost-izalith", "bed-of-chaos-arena", "Bed of Chaos arena", {
+  gate("lost-izalith", "bed-of-chaos-exit", "Bed of Chaos exit", {
     noFront: true,
     bossId: "bed-of-chaos",
   }),
@@ -240,24 +255,19 @@ const GATES_UNSORTED: FogGate[] = [
   gate("royal-wood", "kalameet", "Kalameet", {
     noBack: true,
   }),
-  gate("royal-wood", "kalameet-arena", "Kalameet arena", {
+  gate("royal-wood", "kalameet-exit", "Kalameet exit", {
     noFront: true,
     bossId: "black-dragon-kalameet",
   }),
   gate("royal-wood", "manus-entrance", "Manus entrance", { noBack: true }),
-  gate("royal-wood", "manus-arena", "Manus arena", {
+  gate("royal-wood", "manus-exit", "Manus exit", {
     bossId: "manus-father-of-the-abyss",
     noFront: true,
   }),
   gate("anor-londo", "entrance", "Entrance", { noFront: true }),
-  gate(
-    "anor-londo",
-    "ornstein-and-smough-entrance",
-    "Ornstein and Smough entrance",
-    {
-      bossId: "ornstein-and-smough",
-    },
-  ),
+  gate("anor-londo", "ornstein-and-smough-arena", "Ornstein and Smough arena", {
+    bossId: "ornstein-and-smough",
+  }),
   gate("anor-londo", "ornstein-elevator", "Ornstein elevator"),
   gate("anor-londo", "smough-elevator", "Smough elevator"),
   gate("anor-londo", "archers", "Archers"),
@@ -268,7 +278,7 @@ const GATES_UNSORTED: FogGate[] = [
   gate("tomb-of-the-giants", "nito-entrance", "Nito entrance", {
     noBack: true,
   }),
-  gate("tomb-of-the-giants", "nito-arena", "Nito arena", {
+  gate("tomb-of-the-giants", "nito-exit", "Nito exit", {
     bossId: "nito",
     noFront: true,
   }),
@@ -288,8 +298,8 @@ const GATES_UNSORTED: FogGate[] = [
   }),
   gate(
     "the-dukes-archives",
-    "seath-the-scaleless-arena",
-    "Seath the Scaleless arena",
+    "seath-the-scaleless-exit",
+    "Seath the Scaleless exit",
     { noFront: true, bossId: "seath-the-scaleless" },
   ),
   gate("sanctuary-garden", "guardian-foyer", "Guardian foyer", {
@@ -323,8 +333,8 @@ const GATES_UNSORTED: FogGate[] = [
   }),
   gate(
     "painted-world",
-    "crossbreed-priscilla-arena",
-    "Crossbreed Priscilla arena",
+    "crossbreed-priscilla-exit",
+    "Crossbreed Priscilla exit",
     {
       bossId: "crossbreed-priscilla",
       noFront: true,
@@ -333,15 +343,10 @@ const GATES_UNSORTED: FogGate[] = [
   gate("demon-ruins", "ceaseless-discharge-entrance", "Ceaseless discharge", {
     noBack: true,
   }),
-  gate(
-    "demon-ruins",
-    "ceaseless-discharge-arena",
-    "Ceaseless discharge arena",
-    {
-      bossId: "ceaseless-discharge",
-      noFront: true,
-    },
-  ),
+  gate("demon-ruins", "ceaseless-discharge-exit", "Ceaseless discharge exit", {
+    bossId: "ceaseless-discharge",
+    noFront: true,
+  }),
   gate("demon-ruins", "centipede-demon-entrance", "Centipede demon", {
     noBack: true,
   }),
