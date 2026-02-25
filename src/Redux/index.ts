@@ -13,7 +13,8 @@ export const removeFogGateWarp = runSlice.actions.removeFogGateWarp;
 export const setFogGateCleared = runSlice.actions.setFogGateCleared;
 export const setKeyAcquired = runSlice.actions.setKeyAcquired;
 export const setKeyItemAcquired = runSlice.actions.setKeyItemAcquired;
-export const setBellRung = runSlice.actions.setBellRung;
+export const setMajorEventCompleted =
+  runSlice.actions.setMajorEventCompleted;
 export const setBossDefeated = runSlice.actions.setBossDefeated;
 export const setShortcutUnlocked = runSlice.actions.setShortcutUnlocked;
 export const clearRun = runSlice.actions.clearRun;

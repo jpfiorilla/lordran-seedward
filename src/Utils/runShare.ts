@@ -45,7 +45,7 @@ function compactToRun(c: CompactRun): Run {
     fogGatesCleared: c.c ?? [],
     acquiredKeys: c.k ?? [],
     acquiredKeyItems: c.ki ?? [],
-    bellsRung: c.b ?? [],
+    majorEventsCompleted: c.b ?? [],
     bossesDefeated: c.o ?? [],
     shortcutsUnlocked: c.s ?? [],
   };
@@ -66,7 +66,7 @@ function runToCompact(run: Run): CompactRun {
     c: run.fogGatesCleared?.length ? run.fogGatesCleared : undefined,
     k: run.acquiredKeys.length ? run.acquiredKeys : undefined,
     ki: run.acquiredKeyItems.length ? run.acquiredKeyItems : undefined,
-    b: run.bellsRung.length ? run.bellsRung : undefined,
+    b: run.majorEventsCompleted.length ? run.majorEventsCompleted : undefined,
     o: run.bossesDefeated.length ? run.bossesDefeated : undefined,
     s: run.shortcutsUnlocked.length ? run.shortcutsUnlocked : undefined,
   };

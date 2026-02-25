@@ -2,13 +2,13 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import "./App.css";
 import { Routes, Route, Link, useSearchParams } from "react-router-dom";
 import { SCHEMA_DEFINITIONS } from "./Constants/schema";
-import { BELLS_OF_AWAKENING } from "./Constants/bellsOfAwakening";
+import { MAJOR_EVENTS } from "./Constants/majorEvents";
 import { TRACKABLE_KEYS } from "./Constants/keys";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import {
   startNewRun,
   setRun,
-  setBellRung,
+  setMajorEventCompleted,
   setShortcutUnlocked,
   setKeyAcquired,
   clearRun,
@@ -117,7 +117,7 @@ function HomePage() {
         <section className="content-subsection">
           <h2 className="content-heading">
             <BellIcon className="content-heading-icon" />
-            Bells of Awakening
+            Major events
           </h2>
           {!run && (
             <p className="run-prompt">
@@ -128,32 +128,42 @@ function HomePage() {
               >
                 Start run
               </button>{" "}
-              to track progress (rung state).
+              to track progress (major events).
             </p>
           )}
-          <ul className="bell-list">
-            {BELLS_OF_AWAKENING.map((bell) => (
-              <li key={bell.id} className="bell-item">
-                {run && (
-                  <label className="bell-checkbox">
-                    <input
-                      type="checkbox"
-                      checked={run.bellsRung.includes(bell.id)}
-                      onChange={(e) =>
-                        dispatch(
-                          setBellRung({
-                            bellId: bell.id,
-                            rung: e.target.checked,
-                          }),
-                        )
-                      }
-                    />
-                    <span className="bell-checkbox-label">Rung</span>
-                  </label>
-                )}
-                <span className="bell-name">{bell.name}</span>
-              </li>
-            ))}
+          <ul className="major-event-list">
+            {MAJOR_EVENTS.map((event) => {
+              const dependencyMet =
+                !event.dependsOn ||
+                run?.majorEventsCompleted?.includes(event.dependsOn);
+              return (
+                <li key={event.id} className="major-event-item">
+                  {run && (
+                    <label
+                      className={`major-event-checkbox${!dependencyMet ? " major-event-checkbox--disabled" : ""}`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={run.majorEventsCompleted.includes(event.id)}
+                        disabled={!dependencyMet}
+                        onChange={(e) =>
+                          dispatch(
+                            setMajorEventCompleted({
+                              eventId: event.id,
+                              completed: e.target.checked,
+                            }),
+                          )
+                        }
+                      />
+                      <span className="major-event-checkbox-label">
+                        Completed
+                      </span>
+                    </label>
+                  )}
+                  <span className="major-event-name">{event.name}</span>
+                </li>
+              );
+            })}
           </ul>
         </section>
         {run && (

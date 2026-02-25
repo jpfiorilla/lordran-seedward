@@ -61,8 +61,8 @@ export type Run = {
   acquiredKeys: KeyId[];
   /** Run progress: key item ids acquired (empty array initially). */
   acquiredKeyItems: KeyItemId[];
-  /** Run progress: bell ids rung (empty array initially). */
-  bellsRung: BellOfAwakeningId[];
+  /** Run progress: major event ids completed (bells, lordvessel, etc.). */
+  majorEventsCompleted: MajorEventId[];
   /** Run progress: boss ids defeated (empty array initially = all false). */
   bossesDefeated: BossId[];
   /** Shortcuts / elevators unlocked (e.g. parish elevator to Firelink). */
@@ -97,12 +97,14 @@ export type KeyItem = {
   areaId?: AreaId;
 };
 
-export type BellOfAwakeningId = string;
+export type MajorEventId = string;
 
-export type BellOfAwakening = {
-  id: BellOfAwakeningId;
+export type MajorEvent = {
+  id: MajorEventId;
   name: string;
-  areaId: AreaId;
+  areaId?: AreaId;
+  /** When set, this event's checkbox is disabled until the dependency is completed. */
+  dependsOn?: MajorEventId;
 };
 
 /** Location in the world graph (sub-area, room, arena). Does not map 1:1 to Areas. */
@@ -201,7 +203,7 @@ export const SCHEMA_DEFINITIONS = [
   },
   { name: "KeyId", kind: "alias" as const, def: "string" },
   { name: "KeyItemId", kind: "alias" as const, def: "string" },
-  { name: "BellOfAwakeningId", kind: "alias" as const, def: "string" },
+  { name: "MajorEventId", kind: "alias" as const, def: "string" },
   {
     name: "Run",
     kind: "type" as const,
@@ -212,7 +214,7 @@ export const SCHEMA_DEFINITIONS = [
   fogGateWarps: FogGateWarp[];
   acquiredKeys: KeyId[];
   acquiredKeyItems: KeyItemId[];
-  bellsRung: BellOfAwakeningId[];
+  majorEventsCompleted: MajorEventId[];
   bossesDefeated: BossId[];
   shortcutsUnlocked: ShortcutId[];
   fogGatesCleared?: FogGateId[];
@@ -250,12 +252,13 @@ export const SCHEMA_DEFINITIONS = [
 }`,
   },
   {
-    name: "BellOfAwakening",
+    name: "MajorEvent",
     kind: "type" as const,
     def: `{
-  id: BellOfAwakeningId;
+  id: MajorEventId;
   name: string;
-  areaId: AreaId;
+  areaId?: AreaId;
+  dependsOn?: MajorEventId;
 }`,
   },
   { name: "NodeId", kind: "alias" as const, def: "string" },

@@ -8,12 +8,12 @@ import type {
   FogGateId,
   KeyId,
   KeyItemId,
-  BellOfAwakeningId,
+  MajorEventId,
   BossId,
   ShortcutId,
 } from "../Constants/schema";
 import {
-  getInitialBellsRung,
+  getInitialMajorEventsCompleted,
   getInitialAcquiredKeys,
   getInitialAcquiredKeyItems,
   getInitialBossesDefeated,
@@ -50,7 +50,11 @@ function loadFromStorage(): Run | null {
         : [],
       acquiredKeys: toIdArray(parsed.acquiredKeys, true),
       acquiredKeyItems: toIdArray(parsed.acquiredKeyItems, true),
-      bellsRung: toIdArray(parsed.bellsRung, true),
+      majorEventsCompleted: toIdArray(
+        parsed.majorEventsCompleted ??
+          (parsed as Run & { bellsRung?: unknown }).bellsRung,
+        true,
+      ),
       bossesDefeated: toIdArray(parsed.bossesDefeated ?? [], true),
       shortcutsUnlocked: toIdArray(parsed.shortcutsUnlocked ?? [], true),
     };
@@ -92,7 +96,7 @@ const runSlice = createSlice({
         fogGatesCleared: [],
         acquiredKeys: getInitialAcquiredKeys(),
         acquiredKeyItems: getInitialAcquiredKeyItems(),
-        bellsRung: getInitialBellsRung(),
+        majorEventsCompleted: getInitialMajorEventsCompleted(),
         bossesDefeated: getInitialBossesDefeated(),
         shortcutsUnlocked: getInitialShortcutsUnlocked(),
       };
@@ -223,17 +227,21 @@ const runSlice = createSlice({
       }
       saveToStorage(state.run);
     },
-    setBellRung(
+    setMajorEventCompleted(
       state,
-      action: PayloadAction<{ bellId: BellOfAwakeningId; rung: boolean }>,
+      action: PayloadAction<{
+        eventId: MajorEventId;
+        completed: boolean;
+      }>,
     ) {
       if (!state.run) return;
-      const { bellId, rung } = action.payload;
-      if (rung) {
-        if (!state.run.bellsRung.includes(bellId))
-          state.run.bellsRung.push(bellId);
+      const { eventId, completed } = action.payload;
+      if (completed) {
+        if (!state.run.majorEventsCompleted.includes(eventId))
+          state.run.majorEventsCompleted.push(eventId);
       } else {
-        state.run.bellsRung = state.run.bellsRung.filter((id) => id !== bellId);
+        state.run.majorEventsCompleted =
+          state.run.majorEventsCompleted.filter((id) => id !== eventId);
       }
       saveToStorage(state.run);
     },
