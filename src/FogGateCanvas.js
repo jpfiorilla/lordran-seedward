@@ -11,9 +11,31 @@ import {
   setFogGateWarp,
   removeFogGateWarp,
   setBossDefeated,
+  setBonfireLit,
   startNewRun,
 } from "./redux";
 import { getRegionLayouts } from "./Constants/canvasLayout";
+import { DARK_SOULS_1_BONFIRES } from "./Constants/bonfires";
+
+function BonfireIcon({ className, size = 14 }) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 10 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+    >
+      <path
+        d="M5 0L7 4c.4.8.2 1.6-.8 1.8-1 .2-1.4-.4-1.2-1L5 3.5 3.2 4.8c-.2.6 0 1.2.8 1.4 1 .2 1.4-.6 1.2-1.4L5 0z"
+        fill="currentColor"
+      />
+      <rect x="2" y="9" width="6" height="1.2" rx="0.2" fill="currentColor" />
+    </svg>
+  );
+}
 
 function sideRefKey(ref) {
   return `${ref.fogGateId}:${ref.side}`;
@@ -419,7 +441,46 @@ export default function FogGateCanvas() {
                 "--region-color": region.color,
               }}
             >
-              <div className="fog-canvas-region-name">{region.areaName}</div>
+              <div className="fog-canvas-region-header">
+                <span className="fog-canvas-region-name">
+                  {region.areaName}
+                </span>
+                {run && (
+                  <div className="fog-canvas-region-bonfires">
+                    {DARK_SOULS_1_BONFIRES.filter(
+                      (bf) => bf.areaId === region.areaId,
+                    ).map((bonfire) => {
+                      const isLit =
+                        run.bonfiresLit?.includes(bonfire.id) ?? false;
+                      return (
+                        <button
+                          key={bonfire.id}
+                          type="button"
+                          className={`fog-canvas-bonfire-btn${isLit ? " fog-canvas-bonfire-btn--lit" : ""}`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            dispatch(
+                              setBonfireLit({
+                                bonfireId: bonfire.id,
+                                lit: !isLit,
+                              }),
+                            );
+                          }}
+                          title={bonfire.name}
+                          aria-label={
+                            isLit
+                              ? `${bonfire.name} lit (click to unmark)`
+                              : `Mark ${bonfire.name} lit`
+                          }
+                        >
+                          <BonfireIcon size={12} />
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
               <div className="fog-canvas-gates">
                 {region.gates.map((gate) => (
                   <div key={gate.id} className="fog-canvas-gate">

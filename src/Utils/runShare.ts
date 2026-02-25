@@ -17,6 +17,7 @@ type CompactRun = {
   b?: string[];
   o?: string[];
   s?: string[];
+  bf?: string[];
 };
 
 function toIdArray(value: unknown, asRecord: boolean): string[] {
@@ -48,6 +49,7 @@ function compactToRun(c: CompactRun): Run {
     majorEventsCompleted: c.b ?? [],
     bossesDefeated: c.o ?? [],
     shortcutsUnlocked: c.s ?? [],
+    bonfiresLit: c.bf ?? [],
   };
 }
 
@@ -69,6 +71,8 @@ function runToCompact(run: Run): CompactRun {
     b: run.majorEventsCompleted.length ? run.majorEventsCompleted : undefined,
     o: run.bossesDefeated.length ? run.bossesDefeated : undefined,
     s: run.shortcutsUnlocked.length ? run.shortcutsUnlocked : undefined,
+    bf:
+      run.bonfiresLit?.length ? run.bonfiresLit : undefined,
   };
 }
 
@@ -108,6 +112,7 @@ export function decodeRunFromShareParam(param: string | null): Run | null {
       b: toIdArray(comp.b, true),
       o: toIdArray(comp.o, true),
       s: toIdArray(comp.s, true),
+      bf: Array.isArray(comp.bf) ? comp.bf : undefined,
     };
     return compactToRun(compact);
   } catch {

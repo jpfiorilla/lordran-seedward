@@ -67,6 +67,8 @@ export type Run = {
   bossesDefeated: BossId[];
   /** Shortcuts / elevators unlocked (e.g. parish elevator to Firelink). */
   shortcutsUnlocked: ShortcutId[];
+  /** Bonfires lit (toggled on fog canvas per area). */
+  bonfiresLit?: BonfireId[];
   /** Gates the player has passed through (for UI; gates don't respawn in randomizer). */
   fogGatesCleared?: FogGateId[];
 };

@@ -678,12 +678,51 @@
   pointer-events: none;
 }
 
+.fog-canvas-region-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  pointer-events: auto;
+}
+
 .fog-canvas-region-name {
   font-family: "MedievalSharp", serif;
   font-size: 0.8rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin: 0;
   color: currentColor;
+  min-width: 0;
+}
+
+.fog-canvas-region-bonfires {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  flex-shrink: 0;
+}
+
+.fog-canvas-bonfire-btn {
+  background: none;
+  border: none;
+  padding: 0.15rem;
+  cursor: pointer;
+  color: #e4e4e7;
+  opacity: 0.35;
+  border-radius: 2px;
+}
+
+.fog-canvas-bonfire-btn:hover {
+  opacity: 0.7;
+}
+
+.fog-canvas-bonfire-btn--lit {
+  opacity: 1;
+}
+
+.fog-canvas-bonfire-btn--lit:hover {
+  opacity: 1;
 }
 
 .fog-canvas-gates {

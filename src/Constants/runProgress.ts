@@ -1,4 +1,11 @@
-import type { KeyId, KeyItemId, MajorEventId, BossId, ShortcutId } from "./schema";
+import type {
+  KeyId,
+  KeyItemId,
+  MajorEventId,
+  BossId,
+  ShortcutId,
+  BonfireId,
+} from "./schema";
 
 /**
  * Initial run progress: empty arrays (defeated = false for all bosses, etc.).
@@ -20,5 +27,9 @@ export function getInitialBossesDefeated(): BossId[] {
 }
 
 export function getInitialShortcutsUnlocked(): ShortcutId[] {
+  return [];
+}
+
+export function getInitialBonfiresLit(): BonfireId[] {
   return [];
 }

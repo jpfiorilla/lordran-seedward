@@ -11,6 +11,7 @@ import type {
   MajorEventId,
   BossId,
   ShortcutId,
+  BonfireId,
 } from "../Constants/schema";
 import {
   getInitialMajorEventsCompleted,
@@ -18,6 +19,7 @@ import {
   getInitialAcquiredKeyItems,
   getInitialBossesDefeated,
   getInitialShortcutsUnlocked,
+  getInitialBonfiresLit,
 } from "../Constants/runProgress";
 
 const STORAGE_KEY = "lordran-seedkeeper-run";
@@ -57,6 +59,7 @@ function loadFromStorage(): Run | null {
       ),
       bossesDefeated: toIdArray(parsed.bossesDefeated ?? [], true),
       shortcutsUnlocked: toIdArray(parsed.shortcutsUnlocked ?? [], true),
+      bonfiresLit: toIdArray(parsed.bonfiresLit ?? [], true),
     };
   } catch {
     return null;
@@ -99,6 +102,7 @@ const runSlice = createSlice({
         majorEventsCompleted: getInitialMajorEventsCompleted(),
         bossesDefeated: getInitialBossesDefeated(),
         shortcutsUnlocked: getInitialShortcutsUnlocked(),
+        bonfiresLit: getInitialBonfiresLit(),
       };
       saveToStorage(state.run);
     },
@@ -274,6 +278,21 @@ const runSlice = createSlice({
         state.run.shortcutsUnlocked = state.run.shortcutsUnlocked.filter(
           (id) => id !== shortcutId,
         );
+      }
+      saveToStorage(state.run);
+    },
+    setBonfireLit(
+      state,
+      action: PayloadAction<{ bonfireId: BonfireId; lit: boolean }>,
+    ) {
+      if (!state.run) return;
+      const { bonfireId, lit } = action.payload;
+      const list = state.run.bonfiresLit ?? [];
+      if (lit) {
+        if (!list.includes(bonfireId))
+          state.run.bonfiresLit = [...list, bonfireId];
+      } else {
+        state.run.bonfiresLit = list.filter((id) => id !== bonfireId);
       }
       saveToStorage(state.run);
     },
