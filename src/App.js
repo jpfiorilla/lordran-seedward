@@ -32,6 +32,22 @@ const SHORTCUTS = [
     id: "parish-elevator",
     label: "Parish elevator (Firelink ↔ Undead Parish)",
   },
+  {
+    id: "sens-cage-elevator",
+    label: "Sen's Fortress cage elevator (roof ↔ entrance)",
+  },
+  {
+    id: "new-londo-drained",
+    label: "New Londo water drained",
+  },
+  {
+    id: "anor-londo-bridge",
+    label: "Anor Londo rotating bridge",
+  },
+  {
+    id: "anor-londo-entrance-elevator",
+    label: "Anor Londo entrance elevator",
+  },
   { id: "chaos-servant-covenant", label: "Chaos servant covenant" },
 ];
 
