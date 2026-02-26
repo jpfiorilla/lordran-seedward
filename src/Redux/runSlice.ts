@@ -141,23 +141,25 @@ const runSlice = createSlice({
     ) {
       if (!state.run) return;
       const { from, to } = action.payload;
-      if (
-        from.fogGateId === to.fogGateId &&
-        from.side === to.side
-      )
-        return;
-      const sameConnection = (w: { from: FogGateSideRef; to: FogGateSideRef }) =>
-        (w.from.fogGateId === from.fogGateId && w.from.side === from.side && w.to.fogGateId === to.fogGateId && w.to.side === to.side) ||
-        (w.from.fogGateId === to.fogGateId && w.from.side === to.side && w.to.fogGateId === from.fogGateId && w.to.side === from.side);
+      if (from.fogGateId === to.fogGateId && from.side === to.side) return;
+      const sameConnection = (w: {
+        from: FogGateSideRef;
+        to: FogGateSideRef;
+      }) =>
+        (w.from.fogGateId === from.fogGateId &&
+          w.from.side === from.side &&
+          w.to.fogGateId === to.fogGateId &&
+          w.to.side === to.side) ||
+        (w.from.fogGateId === to.fogGateId &&
+          w.from.side === to.side &&
+          w.to.fogGateId === from.fogGateId &&
+          w.to.side === from.side);
       state.run.fogGateWarps = state.run.fogGateWarps.filter(
         (w) => !sameConnection(w),
       );
       const nextColorIndex =
         1 +
-        Math.max(
-          -1,
-          ...state.run.fogGateWarps.map((w) => w.colorIndex ?? -1),
-        );
+        Math.max(-1, ...state.run.fogGateWarps.map((w) => w.colorIndex ?? -1));
       state.run.fogGateWarps.push({
         from,
         to,
@@ -165,10 +167,7 @@ const runSlice = createSlice({
       });
       saveToStorage(state.run);
     },
-    removeFogGateWarp(
-      state,
-      action: PayloadAction<FogGateSideRef>,
-    ) {
+    removeFogGateWarp(state, action: PayloadAction<FogGateSideRef>) {
       if (!state.run) return;
       const ref = action.payload;
       state.run.fogGateWarps = state.run.fogGateWarps.filter(
@@ -244,8 +243,9 @@ const runSlice = createSlice({
         if (!state.run.majorEventsCompleted.includes(eventId))
           state.run.majorEventsCompleted.push(eventId);
       } else {
-        state.run.majorEventsCompleted =
-          state.run.majorEventsCompleted.filter((id) => id !== eventId);
+        state.run.majorEventsCompleted = state.run.majorEventsCompleted.filter(
+          (id) => id !== eventId,
+        );
       }
       saveToStorage(state.run);
     },
