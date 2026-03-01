@@ -74,8 +74,10 @@ function getWarpChainIndices(warps, seed) {
   });
   let keys = new Set();
   if (seed.type === "warp") {
-    keys.add(sideRefKey(warps[seed.index].from));
-    keys.add(sideRefKey(warps[seed.index].to));
+    const w = warps[seed.index];
+    if (!w) return new Set();
+    keys.add(sideRefKey(w.from));
+    keys.add(sideRefKey(w.to));
   } else {
     keys.add(sideRefKey({ fogGateId: seed.fogGateId, side: seed.side }));
   }
