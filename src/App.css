@@ -623,6 +623,9 @@
 
 /* Fog gate canvas (HTML layout + SVG cables) */
 .fog-canvas-wrap {
+  --anor-gold: #f5d042;
+  --anor-gold-glow: rgba(245, 208, 66, 0.55);
+  --anor-gold-outer: #e8b923;
   overflow: auto;
   margin: 0 -0.5rem 1rem;
   padding: 0.5rem;
@@ -902,6 +905,12 @@
   pointer-events: stroke;
 }
 
+.fog-canvas-warp-line--chain {
+  stroke: var(--anor-gold);
+  stroke-width: 3px;
+  filter: drop-shadow(0 0 6px var(--anor-gold-glow));
+}
+
 .fog-canvas-warp-line--delete-hover {
   stroke: #dc2626;
   stroke-width: 4px;
@@ -910,4 +919,12 @@
 
 .fog-canvas-warp-line--preview {
   stroke-dasharray: 5 4;
+}
+
+.fog-canvas-handle--chain {
+  box-shadow:
+    inset 0 0 0 2px #0f1012,
+    0 0 0 2px var(--anor-gold-outer),
+    0 0 0 4px var(--anor-gold),
+    0 0 12px 3px var(--anor-gold-glow);
 }

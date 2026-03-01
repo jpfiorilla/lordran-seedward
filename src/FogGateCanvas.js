@@ -61,6 +61,47 @@ const CONNECTION_PALETTE = [
   "#38bdf8",
 ];
 
+/** Returns set of warp indices in the same connected component as the seed (warp index or handle). */
+function getWarpChainIndices(warps, seed) {
+  const keyToWarps = new Map();
+  warps.forEach((w, i) => {
+    const a = sideRefKey(w.from);
+    const b = sideRefKey(w.to);
+    if (!keyToWarps.has(a)) keyToWarps.set(a, []);
+    keyToWarps.get(a).push(i);
+    if (!keyToWarps.has(b)) keyToWarps.set(b, []);
+    keyToWarps.get(b).push(i);
+  });
+  let keys = new Set();
+  if (seed.type === "warp") {
+    keys.add(sideRefKey(warps[seed.index].from));
+    keys.add(sideRefKey(warps[seed.index].to));
+  } else {
+    keys.add(sideRefKey({ fogGateId: seed.fogGateId, side: seed.side }));
+  }
+  const indices = new Set();
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const k of keys) {
+      for (const i of keyToWarps.get(k) ?? []) {
+        if (!indices.has(i)) {
+          indices.add(i);
+          changed = true;
+        }
+        const w = warps[i];
+        const other =
+          sideRefKey(w.from) === k ? sideRefKey(w.to) : sideRefKey(w.from);
+        if (!keys.has(other)) {
+          keys.add(other);
+          changed = true;
+        }
+      }
+    }
+  }
+  return indices;
+}
+
 /** Quadratic curve control point so the line bends and reads clearly. */
 function getCurveControlPoint(x1, y1, x2, y2) {
   const midX = (x1 + x2) / 2;
@@ -90,6 +131,7 @@ export default function FogGateCanvas() {
   const [dragPos, setDragPos] = useState(null);
   const [hoverTarget, setHoverTarget] = useState(null);
   const [hoveredWarpIndex, setHoveredWarpIndex] = useState(null);
+  const [hoveredHandle, setHoveredHandle] = useState(null);
   const [modifierHeld, setModifierHeld] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
   const toastTimeoutRef = useRef(null);
@@ -151,6 +193,38 @@ export default function FogGateCanvas() {
       ).length,
     [warps],
   );
+
+  const hoveredChainWarpIndices = useMemo(() => {
+    if (modifierHeld) return null;
+    if (hoveredWarpIndex !== null)
+      return getWarpChainIndices(warps, { type: "warp", index: hoveredWarpIndex });
+    if (
+      hoveredHandle &&
+      getConnectionCountForHandle(hoveredHandle.fogGateId, hoveredHandle.side) > 0
+    )
+      return getWarpChainIndices(warps, {
+        type: "handle",
+        fogGateId: hoveredHandle.fogGateId,
+        side: hoveredHandle.side,
+      });
+    return null;
+  }, [
+    modifierHeld,
+    hoveredWarpIndex,
+    hoveredHandle,
+    warps,
+    getConnectionCountForHandle,
+  ]);
+
+  const hoveredChainKeys = useMemo(() => {
+    if (!hoveredChainWarpIndices) return null;
+    const s = new Set();
+    hoveredChainWarpIndices.forEach((i) => {
+      s.add(sideRefKey(warps[i].from));
+      s.add(sideRefKey(warps[i].to));
+    });
+    return s;
+  }, [hoveredChainWarpIndices, warps]);
 
   const potentialConnectionColor = CONNECTION_IN_PROGRESS_COLOR;
 
@@ -376,11 +450,14 @@ export default function FogGateCanvas() {
                 CONNECTION_PALETTE[colorIndex % CONNECTION_PALETTE.length];
               const isHoveredWithModifier =
                 hoveredWarpIndex === i && modifierHeld;
+              const isInChain =
+                hoveredChainWarpIndices != null &&
+                hoveredChainWarpIndices.has(i);
               return (
                 <path
                   key={`${sideRefKey(warp.from)}-${i}`}
                   d={`M ${fromPos.x} ${fromPos.y} Q ${cx} ${cy} ${toPos.x} ${toPos.y}`}
-                  className={`fog-canvas-warp-line${isHoveredWithModifier ? " fog-canvas-warp-line--delete-hover" : ""}`}
+                  className={`fog-canvas-warp-line${isHoveredWithModifier ? " fog-canvas-warp-line--delete-hover" : ""}${isInChain ? " fog-canvas-warp-line--chain" : ""}`}
                   fill="none"
                   stroke={isHoveredWithModifier ? "#dc2626" : strokeColor}
                   strokeWidth={isHoveredWithModifier ? 4 : 2.5}
@@ -541,6 +618,13 @@ export default function FogGateCanvas() {
                           hoverTarget?.fogGateId === gate.id &&
                           hoverTarget?.side === side &&
                           !isSource;
+                        const handleKey = sideRefKey({
+                          fogGateId: gate.id,
+                          side,
+                        });
+                        const isInChain =
+                          hoveredChainKeys != null &&
+                          hoveredChainKeys.has(handleKey);
                         const connectionColor = getConnectionColorForHandle(
                           gate.id,
                           side,
@@ -572,7 +656,7 @@ export default function FogGateCanvas() {
                               isHoverTarget && !isDropBlocked
                                 ? " fog-canvas-handle--hover-target"
                                 : ""
-                            }${isDropBlocked ? " fog-canvas-handle--drop-blocked" : ""}${isFull ? " fog-canvas-handle--full" : ""}`}
+                            }${isDropBlocked ? " fog-canvas-handle--drop-blocked" : ""}${isFull ? " fog-canvas-handle--full" : ""}${isInChain ? " fog-canvas-handle--chain" : ""}`}
                             ref={(el) =>
                               setHandleRef(
                                 sideRefKey({ fogGateId: gate.id, side }),
@@ -586,13 +670,14 @@ export default function FogGateCanvas() {
                             onPointerUp={(e) =>
                               onHandlePointerUp(e, gate.id, side)
                             }
-                            onPointerEnter={() =>
-                              dragging &&
-                              setHoverTarget({ fogGateId: gate.id, side })
-                            }
-                            onPointerLeave={() =>
-                              dragging && setHoverTarget(null)
-                            }
+                            onPointerEnter={() => {
+                              if (dragging) setHoverTarget({ fogGateId: gate.id, side });
+                              else setHoveredHandle({ fogGateId: gate.id, side });
+                            }}
+                            onPointerLeave={() => {
+                              if (dragging) setHoverTarget(null);
+                              else setHoveredHandle(null);
+                            }}
                             title={
                               isFull
                                 ? `${side === "front" ? "Front" : "Back"} (⌘/Ctrl+click to delete connections)`
