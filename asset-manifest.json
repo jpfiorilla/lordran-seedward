@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/lordran-seedkeeper/static/css/main.0efe19be.css",
-    "main.js": "/lordran-seedkeeper/static/js/main.635b8647.js",
-    "static/js/453.73c93e69.chunk.js": "/lordran-seedkeeper/static/js/453.73c93e69.chunk.js",
-    "index.html": "/lordran-seedkeeper/index.html",
-    "main.0efe19be.css.map": "/lordran-seedkeeper/static/css/main.0efe19be.css.map",
-    "main.635b8647.js.map": "/lordran-seedkeeper/static/js/main.635b8647.js.map",
-    "453.73c93e69.chunk.js.map": "/lordran-seedkeeper/static/js/453.73c93e69.chunk.js.map"
+    "main.css": "/lordran-seedward/static/css/main.412d1492.css",
+    "main.js": "/lordran-seedward/static/js/main.11d5385d.js",
+    "static/js/453.73c93e69.chunk.js": "/lordran-seedward/static/js/453.73c93e69.chunk.js",
+    "index.html": "/lordran-seedward/index.html",
+    "main.412d1492.css.map": "/lordran-seedward/static/css/main.412d1492.css.map",
+    "main.11d5385d.js.map": "/lordran-seedward/static/js/main.11d5385d.js.map",
+    "453.73c93e69.chunk.js.map": "/lordran-seedward/static/js/453.73c93e69.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.0efe19be.css",
-    "static/js/main.635b8647.js"
+    "static/css/main.412d1492.css",
+    "static/js/main.11d5385d.js"
   ]
 }
