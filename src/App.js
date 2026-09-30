@@ -4,7 +4,7 @@ import { Routes, Route, Link, useSearchParams } from "react-router-dom";
 import { SCHEMA_DEFINITIONS } from "./Constants/schema";
 import { MAJOR_EVENTS } from "./Constants/majorEvents";
 import { TRACKABLE_KEYS } from "./Constants/keys";
-import { useAppDispatch, useAppSelector } from "./redux/hooks";
+import { useAppDispatch, useAppSelector } from "./Redux/hooks";
 import {
   startNewRun,
   setRun,
@@ -12,7 +12,7 @@ import {
   setShortcutUnlocked,
   setKeyAcquired,
   clearRun,
-} from "./redux";
+} from "./Redux";
 import {
   encodeRunToShareParam,
   decodeRunFromShareParam,

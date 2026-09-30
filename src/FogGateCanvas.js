@@ -6,14 +6,14 @@ import {
   useLayoutEffect,
   useMemo,
 } from "react";
-import { useAppDispatch, useAppSelector } from "./redux/hooks";
+import { useAppDispatch, useAppSelector } from "./Redux/hooks";
 import {
   setFogGateWarp,
   removeFogGateWarp,
   setBossDefeated,
   setBonfireLit,
   startNewRun,
-} from "./redux";
+} from "./Redux";
 import { getRegionLayouts } from "./Constants/canvasLayout";
 import { DARK_SOULS_1_BONFIRES } from "./Constants/bonfires";
 
